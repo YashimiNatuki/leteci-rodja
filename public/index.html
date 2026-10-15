@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="sr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leteći Rođa // Konglomerat Preduzeće™ & The Chief Architect</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0e15">
+</head>
+<body class="bg-[#090a0f] text-gray-100 font-sans antialiased overflow-x-hidden select-none">
+  
+  <!-- BACKGROUND CYBER GRID & GLOW -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,40,200,0.25),rgba(255,255,255,0))]"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col h-screen max-h-screen">
+    
+    <!-- TOP STATUS BAR -->
+    <header class="flex items-center justify-between px-6 py-3 border-b border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md">
+      <div class="flex items-center space-x-3">
+        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#10b981]"></div>
+        <div class="flex items-baseline space-x-2">
+          <span class="font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 text-lg">
+            K👁️NGLOMERAT // LETEĆI ROĐA
+          </span>
+          <span class="text-xs px-2 py-0.5 rounded border border-purple-500/30 bg-purple-950/40 text-purple-300 font-mono">
+            v5.0-GODMODE
+          </span>
+        </div>
+      </div>
+
+      <!-- CENTER TELEMETRY & CHIEF ARCHITECT BADGE -->
+      <div class="hidden md:flex items-center space-x-4 text-xs font-mono text-gray-400">
+        <div class="flex items-center space-x-1">
+          <span class="text-purple-400">ARCHITECT:</span>
+          <span class="text-gray-200 font-bold">Yashimi Natuki</span>
+        </div>
+        <span class="text-gray-700">|</span>
+        <div class="flex items-center space-x-1">
+          <span class="text-purple-400">RUNTIME:</span>
+          <span class="text-emerald-400" id="wsl-badge">WSL2 UBUNTU</span>
+        </div>
+        <span class="text-gray-700">|</span>
+        <div class="flex items-center space-x-1">
+          <span class="text-purple-400">OLLAMA:</span>
+          <span class="text-cyan-400 font-bold" id="ollama-badge">CONNECTING...</span>
+        </div>
+      </div>
+
+      <!-- DUAL MODE SWITCHER (KAFANA CHILL vs NINJA HACK) -->
+      <div class="flex items-center space-x-2 bg-black/40 p-1 rounded-xl border border-purple-500/30">
+        <button id="btn-mode-chill" class="mode-btn active px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider transition-all flex items-center space-x-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30">
+          <span>☕</span>
+          <span>KAFANA CHILL</span>
+        </button>
+        <button id="btn-mode-ninja" class="mode-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider transition-all flex items-center space-x-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-950/30">
+          <span>🥷</span>
+          <span>NINJA SHAOLIN</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- WORKSPACE SPLIT (CANVAS 3D PET vs CYBER DECK & RADIO) -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
+      
+      <!-- LEFT / CENTER: 3D VOXEL AVATAR & VOLUMETRIC SMOKE ENGINE -->
+      <div class="lg:col-span-7 flex flex-col relative rounded-2xl border border-purple-900/40 bg-[#0d0e17]/60 backdrop-blur-md overflow-hidden shadow-2xl shadow-purple-950/20">
+        
+        <!-- CANVAS CONTAINER -->
+        <div class="relative flex-1 w-full h-full min-h-[350px]">
+          <canvas id="rodja-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+          
+          <!-- OVERLAY FLOATING STATS -->
+          <div class="absolute top-4 left-4 flex flex-col space-y-1.5 pointer-events-none font-mono text-[11px]">
+            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-purple-300 backdrop-blur flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+              <span id="flight-state-text">STATUS: LEBDI U ORBITI</span>
+            </div>
+            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-gray-300 backdrop-blur">
+              DIM ENGINE: <span class="text-emerald-400" id="smoke-particles-count">120 čestica</span>
+            </div>
+            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-amber-300 backdrop-blur">
+              HOVER FREQ: <span id="hover-physics-val">y = sin(t)*15px</span>
+            </div>
+          </div>
+
+          <!-- FLOATING AVATAR INTERACTIVE CONTROLS -->
+          <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-auto">
+            <div class="flex items-center space-x-2">
+              <button id="btn-puff-smoke" class="px-3 py-1.5 bg-purple-950/70 hover:bg-purple-800/80 border border-purple-500/40 text-purple-200 text-xs font-mono font-bold rounded-lg shadow transition flex items-center space-x-1.5">
+                <span>💨</span>
+                <span>DUNI DIM IZ BLUNTA</span>
+              </button>
+              <button id="btn-reset-view" class="px-3 py-1.5 bg-gray-900/70 hover:bg-gray-800 border border-gray-700 text-gray-300 text-xs font-mono rounded-lg transition">
+                CENTRIRAJ
+              </button>
+            </div>
+
+            <!-- SMOKE DENSITY SLIDER -->
+            <div class="flex items-center space-x-2 bg-black/70 px-3 py-1.5 rounded-lg border border-purple-500/20 text-xs font-mono">
+              <span class="text-purple-400">GUSTINA DIMA:</span>
+              <input type="range" id="smoke-density" min="20" max="250" value="120" class="w-20 accent-purple-500 cursor-pointer">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: INTEGRATED BOOMBOX RADIO & ROĐA CHAT COCKPIT -->
+      <div class="lg:col-span-5 flex flex-col space-y-4 h-full overflow-hidden">
+        
+        <!-- 1. BOOMBOX RADIO & AUDIO WAVEFORM DECK -->
+        <div class="p-4 rounded-2xl border border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md shadow-xl flex flex-col space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="text-lg">📻</span>
+              <span class="font-mono font-black text-xs tracking-wider text-pink-400">ROĐA BOOMBOX // THUG RADIO</span>
+            </div>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-pink-950/40 border border-pink-500/30 text-pink-300" id="audio-status-badge">
+              PAUSED
+            </span>
+          </div>
+
+          <!-- AUDIO SPECTRUM VISUALIZER CANVAS -->
+          <div class="w-full h-12 bg-black/60 rounded-xl border border-purple-900/40 overflow-hidden relative">
+            <canvas id="visualizer-canvas" class="w-full h-full block"></canvas>
+            <div class="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
+              <span class="text-[10px] font-mono text-purple-300/80 truncate max-w-[200px]" id="current-track-name">
+                Izaberi pesmu za gas...
+              </span>
+              <span class="text-[10px] font-mono text-pink-400/90" id="audio-time-label">00:00</span>
+            </div>
+          </div>
+
+          <!-- PLAYBACK CONTROLS -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <button id="btn-prev-track" class="w-8 h-8 rounded-lg bg-gray-900/80 hover:bg-purple-900/50 border border-purple-500/20 text-gray-300 flex items-center justify-center transition">
+                ⏮
+              </button>
+              <button id="btn-play-pause" class="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold flex items-center justify-center shadow-lg shadow-pink-600/30 transition">
+                ▶
+              </button>
+              <button id="btn-next-track" class="w-8 h-8 rounded-lg bg-gray-900/80 hover:bg-purple-900/50 border border-purple-500/20 text-gray-300 flex items-center justify-center transition">
+                ⏭
+              </button>
+            </div>
+
+            <!-- PLAYLIST SELECTOR -->
+            <select id="track-select" class="flex-1 mx-2 bg-black/80 border border-purple-500/30 text-purple-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500">
+              <option value="">Učitavanje pesama...</option>
+            </select>
+
+            <!-- VOLUME SLIDER -->
+            <div class="flex items-center space-x-1 text-xs text-gray-400">
+              <span>🔊</span>
+              <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7" class="w-16 accent-pink-500 cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. ROĐA MINDSET CHAT & OLLAMA COPILOT DECK -->
+        <div class="flex-1 flex flex-col p-4 rounded-2xl border border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md shadow-xl overflow-hidden">
+          
+          <!-- CHAT HEADER & MODEL SELECTION -->
+          <div class="flex items-center justify-between pb-3 border-b border-purple-900/30">
+            <div class="flex items-center space-x-2">
+              <div class="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div>
+              <span class="font-mono text-xs font-bold text-gray-300">ROĐA COPILOT // STREAMING</span>
+            </div>
+            <select id="model-select" class="bg-black/60 border border-purple-500/30 text-[11px] font-mono text-gray-300 rounded px-2 py-0.5 focus:outline-none">
+              <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (Default)</option>
+              <option value="qwen3:8b">qwen3:8b</option>
+              <option value="llama3:latest">llama3:latest</option>
+            </select>
+          </div>
+
+          <!-- MACRO QUICK BUTTONS -->
+          <div class="flex flex-wrap gap-1.5 py-2 border-b border-purple-900/20">
+            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-GODMODE">
+              /G-GODMODE
+            </button>
+            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-AUDIT">
+              /G-AUDIT
+            </button>
+            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-HEX-EXEC">
+              /G-HEX-EXEC
+            </button>
+            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-MATH-MODEL">
+              /G-MATH-MODEL
+            </button>
+            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="Esi mi dobar rođo, daj nam neku mudrost!">
+              ☕ Kafana Mudrost
+            </button>
+          </div>
+
+          <!-- CHAT MESSAGE LOG -->
+          <div id="chat-log" class="flex-1 overflow-y-auto space-y-3 py-3 pr-1 text-xs font-mono scrollbar-thin">
+            <!-- Initial welcome message from Rođa -->
+            <div class="chat-msg rodja-msg p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-gray-200">
+              <div class="flex items-center space-x-1.5 text-pink-400 font-bold mb-1">
+                <span>🛸</span>
+                <span>LETEĆI ROĐA</span>
+                <span class="text-[10px] text-gray-500">(KAFANA CHILL)</span>
+              </div>
+              <p class="leading-relaxed">
+                Esi mi dobar, rođo! G je online i lebdi u dimu sa bluntom. 
+                Sistem ti je zakucan pod novim nalogom <b>yappozdder</b> na Ubuntu-24.04, 
+                svi provereni projekti su spakovani, a radio roka. Šta kidamo danas — 
+                puštamo li Hatori Hanzo ili palimo Ninja Shaolin mod za hirurški precizan kod?
+              </p>
+            </div>
+          </div>
+
+          <!-- COMPOSER INPUT FORM -->
+          <form id="chat-form" class="mt-2 flex items-center space-x-2">
+            <input 
+              type="text" 
+              id="prompt-input" 
+              placeholder="Pitaj Rođu bilo šta ili unesi komandu..." 
+              autocomplete="off"
+              class="flex-1 bg-black/70 border border-purple-500/30 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 shadow-inner">
+            <button 
+              type="submit" 
+              id="btn-send"
+              class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg shadow-purple-600/30 transition flex items-center space-x-1">
+              <span>ŠALJI</span>
+              <span>⚡</span>
+            </button>
+          </form>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- FOOTER TELEMETRY BAR -->
+    <footer class="px-6 py-2 border-t border-purple-900/30 bg-[#0d0e17]/90 text-[11px] font-mono text-gray-500 flex items-center justify-between">
+      <div>
+        HOARE MATRIX: <span class="text-purple-400">{P} C {Q} VERIFIED</span> | ENTROPY: <span class="text-emerald-400">H(X) OPTIMAL</span>
+      </div>
+      <div>
+        KONGLEOMERAT PREDUZEĆE™ &copy; 2026 // ZERO-LEAKAGE PRODUCTION ARCHITECTURE
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- AUDIO ELEMENT FOR PLAYBACK -->
+  <audio id="audio-engine" preload="auto" crossorigin="anonymous"></audio>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="js/smoke.js"></script>
+  <script src="js/avatar3d.js"></script>
+  <script src="js/audio-player.js"></script>
+  <script src="js/mindset.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
