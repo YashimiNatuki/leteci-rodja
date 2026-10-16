@@ -28,6 +28,9 @@ class BoomboxPlayer {
     this.playBtn = document.getElementById("btn-play-pause");
     this.trackSelect = document.getElementById("track-select");
     this.volumeSlider = document.getElementById("volume-slider");
+    const savedVolume = localStorage.getItem("rodja.volume");
+    if (savedVolume !== null) this.volumeSlider.value = savedVolume;
+    this.audio.volume = Number(this.volumeSlider.value);
 
     this.initEvents();
   }
@@ -196,10 +199,11 @@ class BoomboxPlayer {
 
     this.volumeSlider.addEventListener("input", (e) => {
       this.audio.volume = parseFloat(e.target.value);
+      localStorage.setItem("rodja.volume", e.target.value);
     });
 
     this.audio.addEventListener("timeupdate", () => {
-      if (!isNaN(this.audio.duration)) {
+      if (Number.isFinite(this.audio.duration)) {
         const curM = Math.floor(this.audio.currentTime / 60);
         const curS = Math.floor(this.audio.currentTime % 60).toString().padStart(2, "0");
         const durM = Math.floor(this.audio.duration / 60);
@@ -208,6 +212,14 @@ class BoomboxPlayer {
       } else {
         this.timeLabel.textContent = "LIVE";
       }
+    });
+
+    this.audio.addEventListener("error", () => {
+      this.isPlaying = false;
+      this.playBtn.textContent = "▶";
+      this.statusBadge.textContent = "AUDIO ERROR";
+      this.statusBadge.className = "font-mono text-[10px] px-2 py-0.5 rounded bg-red-950/40 border border-red-500/40 text-red-300";
+      this.timeLabel.textContent = "UNAVAILABLE";
     });
 
     this.audio.addEventListener("ended", () => {
