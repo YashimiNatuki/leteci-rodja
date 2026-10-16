@@ -1,0 +1,18 @@
+{
+  "name": "leteci-rodja",
+  "version": "6.0.0",
+  "private": true,
+  "description": "Leteći Rođa modularni 3D avatar, radio i lokalni Ollama copilot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check public/js/app.js && node --check public/js/mindset.js && node --check public/js/avatar3d.js && node --check public/js/audio-player.js && node --check public/js/smoke.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

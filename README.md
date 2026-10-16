@@ -1,8 +1,8 @@
-# 🛸 LETEĆI ROĐA — 3D Cyberpunk Mascot, Radio & AI Copilot (v5.0)
+# 🛸 LETEĆI ROĐA — 3D Cyberpunk Mascot, Radio & AI Copilot (v6.0)
 
 > **Autor:** Konglomerat Preduzeće™ & The Chief Architect (Yashimi Natuki)  
 > **Korisnik:** `yappozdder` (Ubuntu-24.04 WSL2)  
-> **Status:** SOVEREIGN / ZERO-TRUST / AIR-GAPPED LOOPBACK / 100% PRODUCTION READY
+> **Status:** MODULAR MERGE / LOCAL-FIRST / OLLAMA FALLBACK / RUNTIME VERIFIED
 
 ---
 
@@ -32,19 +32,20 @@
 5. **Direktna Ollama Streaming Veza:**
    - Povezan na lokalni Ollama server (`http://127.0.0.1:11434`) sa podrškom za modele `qwen2.5-coder:7b`, `qwen3:8b`, `llama3`.
    - Real-time token streaming preko SSE protokola, uz inteligentni lokalni fallback.
+6. **Merged standalone state engine:**
+   - KAFANA CHILL, NINJA SHAOLIN, PROACTIVE DIAGNOSTIC i IDLE SLEEP modovi.
+   - `/help`, `/clear`, `/mode`, `/export`, Escape cancel i lokalna istorija do 40 poruka.
+   - XSS-safe code-block rendering sa COPY kontrolom i realnom lag/heap telemetrijom.
+   - PWA install prompt i responsive modularni cockpit.
 
 ---
 
 ## 🚀 Pokretanje Sistema
 
-### 1. Pokretanje pod nalogom `yappozdder` u WSL:
+### 1. Pokretanje lokalno:
 
 ```bash
-# Prelazak na nalog yappozdder
-su - yappozdder
-
-# Ulazak u folder i pokretanje
-cd ~/projects/leteci-rodja
+npm install
 npm start
 ```
 
@@ -90,4 +91,5 @@ leteci-rodja/
 ## 🔒 Autorizacija i Status
 * **Chief Architect:** Yashimi Natuki
 * **Entity:** Konglomerat Preduzeće™
-* **Hoare Verification:** $\{P\} \mathbf{C} \{Q\}$ VERIFIED
+* **Runtime verification:** syntax check, health/tracks API, SSE fallback i browser smoke test.
+* **Ollama:** opcioni lokalni upstream; kada je offline, server šalje kontrolisani fallback SSE odgovor.
