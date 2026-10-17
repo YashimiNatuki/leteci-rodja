@@ -1,0 +1,16 @@
+{
+  "name": "leteci-rodja",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local companion and Ollama proxy; experimental audit branch",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
