@@ -1,95 +1,77 @@
-# 🛸 LETEĆI ROĐA — 3D Cyberpunk Mascot, Radio & AI Copilot (v6.0)
+# Leteći Rođa — v7 Low-Power Operator Cockpit
 
-> **Autor:** Konglomerat Preduzeće™ & The Chief Architect (Yashimi Natuki)  
-> **Korisnik:** `yappozdder` (Ubuntu-24.04 WSL2)  
-> **Status:** MODULAR MERGE / LOCAL-FIRST / OLLAMA FALLBACK / RUNTIME VERIFIED
+> **Status:** local-first · offline fallback · zero external runtime assets · browser-verified
 
----
+Leteći Rođa je mali lokalni operator cockpit za četiri jasno odvojene capability grupe: **Copilot**, **Modes**, **Visual Stage** i **Radio**. Interfejs je namerno tih i čitljiv; avatar, smoke i visualizer su sekundarni i rade sa low-power guardima.
 
-## 🌟 O Projektu
-
-**Leteći Rođa** je autonomni 3D lebdeći asistent, maskota i hakerski kopilot inspirisan 2Pac Thug Life uličnom filozofijom i vrhunskom matematičko-softverskom arhitekturom.
-
-### Ključne Mogućnosti:
-1. **3D Voxel Avatar & Parallax:**
-   - 2.5D/3D Canvas Voxel render avatara: glava, 2Pac bandanna sa paisley tačkama, Matrix sunčane naočare sa odsjajem, orbitalni halo prsten koji rotira oko tela, i cyberpunk hoodie.
-   - Reaguje na pokrete miša sa 3D naginjanjem (parallax), može se slobodno vući i pomerati po ekranu.
-2. **Volumetric Smoke Particle Engine (Dim iz bonga / blunta):**
-   - Fizički particle generator koji emituje prstenove i oblake dima direktno sa usijanog vrha blunta.
-   - Pufće na zadato pitanje, a u ritmu muzike dim vibrira i pulsira sa basom!
-3. **Integrisani Boombox / MP3 Radio:**
-   - Ugrađen Web Audio API Frequency Analyser sa real-time spektralnim visualizerom.
-   - Učitane lokalne numere:
-     - `Hatori Hanzo.mp3`
-     - `Neznam Ništa.mp3`
-     - `dobrodosao i bye bye.mp3`
-     - `poLejt najt..never mind.mp3`
-     - Online Cyberpunk / Kafana lofi strimovi.
-4. **Dual Mindset Persona (Kafana Chill vs Ninja Shaolin Hack):**
-   - **Kafana Chill Mod:** Opulentan, opušten srpski ulični žargon (*"G", "rođo", "brate", "ludilo mednes", "esi mi dobar"*), priča o muzici, kulira u dimu.
-   - **Ninja Shaolin Hack Mod:** Hirurški precizan, striktan **Zero-TODO** mandat, kompletan produkcijski kod, Hoare logika $\{P\}\mathbf{C}\{Q\}$, Shannon entropija.
-   - Komandni makroi: `/G-GODMODE`, `/G-AUDIT`, `/G-HEX-EXEC`, `/G-MATH-MODEL`, `/G-NUKE`.
-5. **Direktna Ollama Streaming Veza:**
-   - Povezan na lokalni Ollama server (`http://127.0.0.1:11434`) sa podrškom za modele `qwen2.5-coder:7b`, `qwen3:8b`, `llama3`.
-   - Real-time token streaming preko SSE protokola, uz inteligentni lokalni fallback.
-6. **Merged standalone state engine:**
-   - KAFANA CHILL, NINJA SHAOLIN, PROACTIVE DIAGNOSTIC i IDLE SLEEP modovi.
-   - `/help`, `/clear`, `/mode`, `/export`, Escape cancel i lokalna istorija do 40 poruka.
-   - XSS-safe code-block rendering sa COPY kontrolom i realnom lag/heap telemetrijom.
-   - PWA install prompt i responsive modularni cockpit.
-
----
-
-## 🚀 Pokretanje Sistema
-
-### 1. Pokretanje lokalno:
+## Quick start
 
 ```bash
 npm install
+npm run check
 npm start
 ```
 
-Aplikacija se podiže na portu **`http://localhost:15200`**.
+Otvori `http://localhost:15200`.
 
-### 2. Pokretanje iz Windows PowerShell-a:
+## Capability surface
 
-```powershell
-wsl -d Ubuntu-24.04 -u yappozdder bash -c "cd ~/projects/leteci-rodja && npm start"
-```
+| Modul | Svrha | Low-power ponašanje |
+|---|---|---|
+| `runtime` | Ollama health, model discovery, lag/heap | polling na 15s, bez teških dependency-ja |
+| `modes` | Chill, Ninja, Diagnostic, Sleep | state u `localStorage`, bez dodatnog runtime-a |
+| `copilot` | SSE chat, history, commands, macros | bounded history od 40 entries, safe rendering |
+| `visual-stage` | Canvas avatar i smoke kontrole | 32 default particles, cap 96, reduced-motion guard |
+| `radio` | playlist, playback, volume, visualizer | analyser rad samo kada radio svira |
 
-Ili otvorite `http://localhost:15200` u vašem browseru!
+## Commands
 
----
+- `/help` — command overview
+- `/clear` — clear local history
+- `/mode chill|ninja|diag|sleep` — switch mode
+- `/export` — download `rodja-chat.json`
+- `Escape` — cancel active SSE request
+- Quick commands: `Audit`, `Godmode`, `Model`, `Help`
 
-## 📂 Struktura Fajlova
+## Runtime contracts
+
+Backend surface ostaje stabilan:
+
+- `GET /api/health` — app/runtime/Ollama status
+- `GET /api/tracks` — local tracks and online streams
+- `POST /api/chat` — SSE streaming with controlled offline fallback
+
+Ollama je opcioni upstream na `http://127.0.0.1:11434`. Kada nije dostupan, UI i dalje radi kroz server fallback.
+
+## Source map
 
 ```text
-leteci-rodja/
-├── package.json               # Konfiguracija i zavisnosti (express, cors)
-├── server.js                  # Express backend & Ollama streaming proxy
-├── README.md                  # Kompletan runbook i tehnička specifikacija
-└── public/
-    ├── index.html             # Master HUD, Canvas, radio i chat interfejs
-    ├── manifest.json          # PWA manifest
-    ├── css/
-    │   └── style.css          # Cyberpunk tema, scanlines, neonski efekti
-    ├── js/
-    │   ├── smoke.js           # Volumetrijski endžin za čestice dima
-    │   ├── avatar3d.js        # 3D Voxel avatar, lebdenje, halo prsten, fizika
-    │   ├── audio-player.js    # Boombox plejer i spektralni vizuelizator
-    │   ├── mindset.js         # Dualna persona (Chill vs Ninja) i makroi
-    │   └── app.js             # 60FPS orkestracija i strimovanje poruka
-    └── audio/
-        ├── Hatori Hanzo.mp3
-        ├── Neznam Ništa.mp3
-        ├── dobrodosao i bye bye.mp3
-        └── poLejt najt..never mind.mp3
+server.js                  Express host + health/tracks/chat contracts
+public/index.html          semantic operator shell
+public/css/style.css       design tokens, responsive layout, focus states
+public/js/runtime.js       runtime status and telemetry
+public/js/modes.js         mode state machine and command metadata
+public/js/copilot.js       history, SSE, safe rendering and commands
+public/js/visual-stage.js  avatar/smoke lifecycle and low-power guards
+public/js/radio.js         radio composition and lazy visualizer loop
+public/js/smoke.js         particle engine implementation
+public/js/avatar3d.js      canvas avatar implementation
+public/js/audio-player.js  Web Audio playback implementation
+docs/                      capability map, spec and implementation plan
 ```
 
----
+## Design and performance rules
 
-## 🔒 Autorizacija i Status
-* **Chief Architect:** Yashimi Natuki
-* **Entity:** Konglomerat Preduzeće™
-* **Runtime verification:** syntax check, health/tracks API, SSE fallback i browser smoke test.
-* **Ollama:** opcioni lokalni upstream; kada je offline, server šalje kontrolisani fallback SSE odgovor.
+The UI uses a restrained industrial-console system: system UI typography, graphite surfaces, cyan/amber status accents and one controlled shadow token. There is no Google Fonts dependency, no permanent scanline overlay, no full-time blur layer and no new frontend framework.
+
+The composition root owns one animation loop. Smoke defaults to 32 particles, the visualizer is sampled only during playback, and `prefers-reduced-motion` disables nonessential movement. All user/model text uses safe DOM rendering.
+
+## Verification
+
+The refactor is validated with:
+
+```bash
+npm run check
+```
+
+Browser acceptance covers mode switching, diagnostic commands, fallback SSE chat, quick macros, clear-history, smoke controls, track selection and live radio playback. Live duration is rendered as `LIVE`; unreachable audio reports `AUDIO ERROR` instead of leaking `Infinity:NaN`.

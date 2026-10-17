@@ -32,7 +32,7 @@ app.get("/api/health", async (_req, res) => {
       ollama = { status: "online", host: OLLAMA_HOST, active_model: DEFAULT_MODEL, available_models: Array.isArray(data.models) ? data.models.map(model => model.name).filter(Boolean) : [] };
     }
   } catch { /* offline Ollama is a supported state */ }
-  res.json({ status: "ONLINE", app: "Leteći Rođa", version: "6.0.0", uptime_sec: Math.floor(process.uptime()), ollama });
+  res.json({ status: "ONLINE", app: "Leteći Rođa", version: "7.0.0", uptime_sec: Math.floor(process.uptime()), ollama });
 });
 
 app.get("/api/tracks", (_req, res) => {
@@ -92,4 +92,4 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.get("*", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
-app.listen(PORT, "0.0.0.0", () => console.log(`LETEĆI ROĐA listening on http://0.0.0.0:${PORT} | Ollama: ${OLLAMA_HOST}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`LETEĆI ROĐA v7 listening on http://0.0.0.0:${PORT} | Ollama: ${OLLAMA_HOST}`));

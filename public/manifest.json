@@ -1,14 +1,14 @@
 {
-  "name": "Leteći Rođa — 3D Cyberpunk Companion",
-  "short_name": "LetećiRođa",
-  "description": "3D Cyberpunk Flying Mascot, Radio & AI Copilot with Dual Mindset",
+  "name": "Leteći Rođa — Operator cockpit",
+  "short_name": "Rođa cockpit",
+  "description": "Local-first low-power AI operator cockpit with copilot, modes, visual stage and radio.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#090a0f",
-  "theme_color": "#a855f7",
+  "background_color": "#0b0e12",
+  "theme_color": "#0b0e12",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml"
     }

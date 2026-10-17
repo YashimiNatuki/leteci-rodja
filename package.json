@@ -1,12 +1,12 @@
 {
   "name": "leteci-rodja",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "private": true,
-  "description": "Leteći Rođa modularni 3D avatar, radio i lokalni Ollama copilot",
+  "description": "Leteći Rođa low-power local-first AI operator cockpit",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check public/js/app.js && node --check public/js/mindset.js && node --check public/js/avatar3d.js && node --check public/js/audio-player.js && node --check public/js/smoke.js"
+    "check": "node --check server.js && for file in public/js/*.js; do node --check \"$file\"; done"
   },
   "engines": {
     "node": ">=18"
