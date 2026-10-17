@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<title>Rođa Observatory · Project Graveyard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03050a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<style>
+:root{color-scheme:dark;--bg:#03050a;--fg:#e6eef8;--mut:#8593a8;--im:#2ee6c0;--in:#ff4d5e;--bu:#8a99b0;--panel:rgba(10,16,26,.9);--line:#26324a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:13px ui-monospace,Menlo,Consolas,monospace;overflow:hidden;overscroll-behavior:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.labs{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;font-size:10px;white-space:nowrap;transform:translate(-50%,0);text-shadow:0 0 6px #000;line-height:1.25;text-align:center}
+.lb small{display:block;color:var(--mut);font-size:9px}
+.ui{position:fixed;z-index:3}
+button,.btn{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;min-height:36px}
+button:hover{border-color:var(--mut)}button.on{outline:2px solid currentColor}
+input{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:36px;box-sizing:border-box;width:100%}
+#bar{top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#bar h1{margin:0 8px 0 0;font:800 18px system-ui,sans-serif;letter-spacing:-.3px}
+#q{max-width:200px}
+.sp{flex:1}
+#foot{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;flex-wrap:wrap;align-items:center;pointer-events:none}
+#foot>*{pointer-events:auto}
+.c-im{color:var(--im)}.c-in{color:var(--in)}.c-bu{color:var(--bu)}
+#sheet{left:12px;right:12px;bottom:calc(56px + env(safe-area-inset-bottom,0px));max-width:420px;margin-left:auto;max-height:55vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;display:none;backdrop-filter:blur(10px)}
+#sheet h2{margin:0 0 4px;font:700 17px system-ui,sans-serif;word-break:break-all}
+#sheet .m{color:var(--mut);line-height:1.5;margin-bottom:8px}
+#sheet .row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+#sheet ul{margin:6px 0;padding-left:16px;color:var(--fg);line-height:1.5}
+#sheet .k{color:var(--mut);margin-top:10px;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+#toast{left:50%;transform:translateX(-50%);top:60px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 14px;display:none;max-width:90vw}
+dialog{background:#0b121d;color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:18px;max-width:380px;width:calc(100vw - 40px)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog label{display:block;margin:10px 0 4px;color:var(--mut)}
+input[type=file]{display:none}
+@media(max-width:560px){#bar h1{display:none}#q{max-width:none;flex:1}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="labs" id="labS"></div><div class="labs" id="labT" style="display:none"></div>
+<div class="ui" id="bar">
+  <h1>Rođa Observatory</h1>
+  <a class="btn" href="../" aria-label="Nazad u Leteći Rođa cockpit">← Rođa cockpit</a>
+  <button id="tS" class="on">🌐 Sfera</button><button id="tT">🌳 Struktura</button>
+  <input id="q" placeholder="Traži projekat…  ( / )" autocomplete="off">
+  <span class="sp"></span>
+  <button id="inst" style="display:none">⬇ Instaliraj</button>
+  <button id="snd" title="Drone">🔇</button>
+  <label class="btn" title="repos.json (više fajlova)">📂<input id="file" type="file" accept=".json" multiple></label>
+  <button id="cfg" title="Podešavanja">⚙</button>
+</div>
+<div class="ui" id="toast"></div>
+<div class="ui" id="sheet"></div>
+<div class="ui" id="foot"></div>
+<dialog id="dlg">
+  <b>Podešavanja</b>
+  <label for="own">GitHub korisnik (za strukturu i audit)</label><input id="own">
+  <label for="tok">Token (opciono, čuva se samo u ovom browseru)</label><input id="tok" type="password" placeholder="ghp_… — za rate limit i Dependabot">
+  <div class="row" style="display:flex;gap:8px;margin-top:14px"><button id="save">Sačuvaj</button><button id="close">Zatvori</button><button id="clr">Obriši keš</button></div>
+</dialog>
+
+<script src="vendor/three-r128.min.js"></script>
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s);
+const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const COL={immortal:0x2ee6c0,infected:0xff4d5e,buried:0x8a99b0},CLS={immortal:'c-im',infected:'c-in',buried:'c-bu'},LAB={immortal:'IMMORTAL',infected:'INFECTED',buried:'BURIED'};
+const hex=c=>'#'+c.toString(16).padStart(6,'0');
+const DEF=[['Y!App Graveyard','immortal','TypeScript',60,'YashimiNatuki'],['YASHIMI RODJA','immortal','JavaScript',90,'YashimiNatuki'],['Codex Inquisitio','immortal','Python',120,'YashimiNatuki'],['Golub Translator','immortal','JavaScript',35,'YashimiNatuki'],['Rodja Sumnja Tips','immortal','JavaScript',30,'YashimiNatuki'],['AiChatBrat (by Yashimi)','immortal','JavaScript',400,'YashimiNatuki'],['KomandniCentar','immortal','TypeScript',220,'YashimiNatuki'],['AiChatBrat-v.420','immortal','TypeScript',180,'YashimiNatuki'],['aichatbrat-web','immortal','TypeScript',900,'YashimiNatuki'],['chatbrat-demo','immortal','HTML',20,'YashimiNatuki'],['pozarevac-ai-orchestrator','immortal','Python',300,'YashimiNatuki'],['3D-gta-Pozarevac','immortal','TypeScript',700,'YashimiNatuki'],['candle-web-app','immortal','JavaScript',45,'lokalno'],['pikado','immortal','JavaScript',80,'lokalno'],['screenpipe','infected','Rust',2500,'fork'],['Yashimmi (fork)','infected','JavaScript',500,'fork'],['chakra-ui-docs','infected','TypeScript',1500,'fork'],['juju','infected','Go',3000,'fork'],['wwy-explorer','infected','Python',150,'fork'],['vojislavmarkovic','buried','—',30,'drugi'],['yaction','buried','—',25,'drugi'],['m0jCLI','buried','Go',40,'drugi'],['.github','buried','—',5,'drugi'],['Yappinator','buried','JavaScript',60,'drugi'],['Yappinattor','buried','JavaScript',55,'drugi'],['cale','buried','JavaScript',15,'drugi'],['Yashimite','buried','—',20,'drugi']];
+const mkData=()=>DEF.map(a=>({name:a[0],status:a[1],lang:a[2],kb:a[3],acc:a[4]}));
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let cfg=load('yg_cfg',{owner:'YashimiNatuki',token:''}),ov=load('yg_status',{}),data=load('yg_data',null)||mkData();
+let mode='sphere',filter=null,query='',sel=-1,treeSel=-1,curRepo='',curTree=null;
+const st=p=>ov[p.name]||p.status;
+const toast=(m,ms=3200)=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms)};
+
+// ---------- GitHub (keš + stale fallback) ----------
+async function gh(path){
+  const k='ghc:'+path,now=Date.now();let c=null;try{c=JSON.parse(localStorage.getItem(k))}catch(e){}
+  if(c&&now-c.t<6e5)return c.d;
+  try{
+    const h={Accept:'application/vnd.github+json'};if(cfg.token)h.Authorization='Bearer '+cfg.token;
+    const r=await fetch('https://api.github.com'+path,{headers:h});
+    if(!r.ok)throw new Error(r.status===403||r.status===429?'Rate limit. Dodaj token u ⚙':r.status===404?'Nije nađeno (privatan repo? treba token)':'GitHub '+r.status);
+    const d=await r.json();save(k,{t:now,d});return d;
+  }catch(e){if(c){toast('Offline/limit: prikazujem keširano');return c.d}throw e}
+}
+const fullName=p=>p.full||((p.acc==='YashimiNatuki'||p.acc==='fork')&&cfg.owner?cfg.owner+'/'+p.name.replace(/ \(.*\)$/,''):null);
+const fmt=b=>b>1e6?(b/1e6).toFixed(1)+' MB':b>1e3?(b/1e3).toFixed(1)+' KB':b+' B';
+const ago=d=>{const n=Math.floor((Date.now()-new Date(d))/864e5);return n<1?'danas':n<60?n+' d':n<700?Math.round(n/30)+' mes':Math.round(n/365)+' god'};
+
+// ---------- three ----------
+let R;try{R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true})}catch(e){document.body.append(E('p',null,'WebGL nije dostupan.'));return}
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x03050a,.0026);
+const cam=new THREE.PerspectiveCamera(55,1,.1,3000);
+const sphG=new THREE.Group(),treG=new THREE.Group();scene.add(sphG,treG);treG.visible=false;
+(()=>{const n=900,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=400+Math.random()*600,t=Math.random()*6.283,u=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(u)*Math.cos(t);p[i*3+1]=r*Math.cos(u);p[i*3+2]=r*Math.sin(u)*Math.sin(t)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8899bb,size:1.3,sizeAttenuation:false,transparent:true,opacity:.55})))})();
+const GT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+function clearGroup(g){while(g.children.length){const o=g.children.pop();o.traverse(m=>{m.geometry&&m.geometry.dispose()})}}
+let seed=7;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+
+// kamera: focus (lokalno u grupi), dist
+const focus=new THREE.Vector3(),fT=new THREE.Vector3();let dist=170,distT=170;
+const goto=(v,d)=>{fT.copy(v);distT=d};
+const tmp=new THREE.Vector3();
+let sf=1,sfT=1,pop=0,popDir=0,sphLinks=null,held=false,lp=0,lastT=performance.now();const popFrom=new THREE.Vector3(),popTo=new THREE.Vector3(),END=.8,ROOT_D=90;
+
+// ---------- SFERA ----------
+let S=[];
+function buildSphere(){
+  clearGroup(sphG);$('#labS').innerHTML='';S=[];seed=7;const n=data.length,up=new THREE.Vector3(0,1,0);
+  data.forEach((p,i)=>{
+    const y=1-(i+.5)/n*2,r=Math.sqrt(1-y*y),a=i*2.399963,Rr=62+rnd()*26,dir=new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r),h=5+Math.log10(1+p.kb)*5;
+    const g=new THREE.Group();g.position.copy(dir).multiplyScalar(Rr);g.quaternion.setFromUnitVectors(up,dir);
+    const bg=new THREE.BoxGeometry(2.6,h,2.6),box=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.55}));box.userData.i=i;
+    const ed=new THREE.LineSegments(new THREE.EdgesGeometry(bg),new THREE.LineBasicMaterial({transparent:true}));
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:GT,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));sp.scale.set(h*2.2,h*2.2,1);
+    g.add(box,ed,sp);sphG.add(g);
+    const lb=E('div','lb');lb.append(document.createTextNode(p.name));$('#labS').append(lb);
+    S.push({g,box,ed,sp,lb});
+  });
+  const pts=[];S.forEach((a,i)=>{let b=-1,bd=1e9;S.forEach((c,j)=>{if(i!==j&&data[i].acc===data[j].acc){const d=a.g.position.distanceTo(c.g.position);if(d<bd){bd=d;b=j}}});if(b>=0)pts.push(a.g.position,S[b].g.position);const k=Math.floor(rnd()*n);if(k!==i)pts.push(a.g.position,S[k].g.position)});
+  sphLinks=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x3b6f86,transparent:true,opacity:.26}));sphG.add(sphLinks);
+  recolor();foot();
+}
+function recolor(){S.forEach((n,i)=>{const p=data[i],s=st(p),c=COL[s],dim=(filter&&filter!==s)||(query&&!p.name.toLowerCase().includes(query));
+  n.ed.material.color.setHex(c);n.sp.material.color.setHex(c);n.lb.style.color=hex(c);n.dim=!!dim;n.base=dim?.04:s==='buried'?.35:.8;
+  n.ed.material.opacity=dim?.12:1;n.box.material.opacity=dim?.08:.55})}
+
+// ---------- STRUKTURA ----------
+let T=[];
+function buildTreeData(list){
+  const root={name:'/',path:'',dirs:{},files:[],n:0,size:0};
+  list.forEach(e=>{if(e.type!=='blob')return;const ps=e.path.split('/');let d=root;
+    for(let i=0;i<ps.length-1;i++){const k=ps[i];d=d.dirs[k]||(d.dirs[k]={name:k,path:ps.slice(0,i+1).join('/'),dirs:{},files:[],n:0,size:0,parent:d})}
+    d.files.push({name:ps[ps.length-1],size:e.size||0})});
+  (function agg(d){d.n=d.files.length;d.size=d.files.reduce((a,f)=>a+f.size,0);Object.values(d.dirs).forEach(c=>{agg(c);d.n+=c.n;d.size+=c.size})})(root);
+  return root}
+function layout(d,pos,dir,depth,out,pi){
+  const idx=out.length;out.push({d,pos,depth,pi});
+  const kids=Object.values(d.dirs).sort((a,b)=>b.n-a.n).slice(0,14),k=kids.length,L=30/Math.pow(depth+1,.5)+9;
+  const ref=Math.abs(dir.y)<.9?new THREE.Vector3(0,1,0):new THREE.Vector3(1,0,0),u=new THREE.Vector3().crossVectors(dir,ref).normalize(),w=new THREE.Vector3().crossVectors(dir,u);
+  kids.forEach((c,i)=>{const cone=depth===0?3.0:1.15,th=cone*Math.sqrt((i+.5)/k),ph=i*2.39996;
+    const v=dir.clone().multiplyScalar(Math.cos(th)).add(u.clone().multiplyScalar(Math.cos(ph)*Math.sin(th))).add(w.clone().multiplyScalar(Math.sin(ph)*Math.sin(th)));
+    layout(c,pos.clone().add(v.clone().multiplyScalar(L)),v,depth+1,out,idx)});
+}
+function buildTree(root,title){
+  clearGroup(treG);$('#labT').innerHTML='';T=[];treG.rotation.set(0,-1.1,0);
+  layout(root,new THREE.Vector3(),new THREE.Vector3(0,1,0),0,T,-1);
+  const lp=[],fp=[],fc=[];
+  T.forEach((t,i)=>{
+    const d=t.d,s=1.2+Math.log10(d.n+1)*1.5,col=new THREE.Color().setHSL((.5+t.depth*.09)%1,.75,.58);
+    const bg=new THREE.BoxGeometry(s,s,s),box=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.6}));box.position.copy(t.pos);box.userData.k=i;
+    const ed=new THREE.LineSegments(new THREE.EdgesGeometry(bg),new THREE.LineBasicMaterial({color:col}));ed.position.copy(t.pos);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:GT,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.55}));sp.position.copy(t.pos);sp.scale.set(s*4,s*4,1);
+    treG.add(box,ed,sp);t.box=box;t.s=s;
+    if(t.pi>=0)lp.push(T[t.pi].pos,t.pos);
+    const nf=Math.min(d.files.length,45);for(let j=0;j<nf;j++){const a=rnd()*6.283,b=Math.acos(2*rnd()-1),r=s*.9+1.5+rnd()*3;fp.push(t.pos.x+r*Math.sin(b)*Math.cos(a),t.pos.y+r*Math.cos(b),t.pos.z+r*Math.sin(b)*Math.sin(a));fc.push(col.r,col.g,col.b)}
+    const lb=E('div','lb');lb.append(document.createTextNode(i?d.name:title));const sm=E('small',null,d.n+' fajl · '+fmt(d.size));lb.append(sm);$('#labT').append(lb);t.lb=lb;
+  });
+  treG.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0x4a7a96,transparent:true,opacity:.5})));
+  const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(fp,3));fg.setAttribute('color',new THREE.Float32BufferAttribute(fc,3));
+  treG.add(new THREE.Points(fg,new THREE.PointsMaterial({size:2.2,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:.8})));
+  focus.set(0,0,0);fT.set(0,0,0);distT=ROOT_D;
+}
+const SAMPLE=['README.md','package.json','src/index.ts','src/app/App.tsx','src/app/hooks/useAudio.ts','src/app/hooks/useData.ts','src/components/Panel.tsx','src/components/Chip.tsx','src/components/ui/Button.tsx','src/lib/api.ts','src/lib/cache.ts','public/icon.svg','public/manifest.json','tests/api.test.ts','tests/cache.test.ts','docs/architecture.md','docs/img/a.png','server/index.js','server/routes/audit.js','server/routes/repos.js','.github/workflows/ci.yml'].map(p=>({path:p,type:'blob',size:Math.floor(500+Math.random()*9000)}));
+async function enterStructure(p){
+  const full=p&&fullName(p);let list;
+  try{
+    if(!full){toast('Lokalni projekat nema GitHub repo. Prikazujem demo strukturu.');list=SAMPLE}
+    else{toast('Učitavam strukturu…');const d=await gh(`/repos/${full}/git/trees/HEAD?recursive=1`);list=d.tree;if(d.truncated)toast('Repo je ogroman: prikaz je skraćen',4500)}
+  }catch(e){toast('Greška: '+e.message+' · demo prikaz',5000);list=SAMPLE}
+  curRepo=p?p.name:'demo';curTree=buildTreeData(list);buildTree(curTree,curRepo);startPop(p);openFolder(0);
+}
+function startPop(p){
+  if(p&&sel>=0&&S[sel])S[sel].g.getWorldPosition(popFrom);else popFrom.set(0,0,0);
+  setMode('tree');cam.updateMatrixWorld();
+  popTo.set(cam.position.x,cam.position.y-ROOT_D*.12,cam.position.z-ROOT_D);
+  treG.visible=true;treG.position.copy(popFrom);treG.scale.setScalar(.001);pop=0;popDir=1;
+}
+function collapse(){if(mode!=='tree'||popDir<0)return;popDir=-1;SH.style.display='none';sfT=1;$('#labT').style.display='none'}
+function openFolder(k){
+  treeSel=k;const t=T[k],d=t.d;goto(t.pos,k?26:ROOT_D);
+  const ext={};(function w(x){x.files.forEach(f=>{const e=f.name.includes('.')?f.name.split('.').pop():'(bez)';ext[e]=(ext[e]||0)+f.size});Object.values(x.dirs).forEach(w)})(d);
+  const top=Object.entries(ext).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const all=[];(function w(x){x.files.forEach(f=>all.push([x.path+'/'+f.name,f.size]));Object.values(x.dirs).forEach(w)})(d);all.sort((a,b)=>b[1]-a[1]);
+  sheet(sh=>{
+    sh.append(E('h2',null,(k?d.path:curRepo+'/')),E('div','m',d.n+' fajlova · '+fmt(d.size)+' · '+Object.keys(d.dirs).length+' podfoldera · dubina '+t.depth));
+    sh.append(E('div','k','Najviše mesta'));const u1=E('ul');top.forEach(([e,s])=>u1.append(E('li',null,'.'+e+' — '+fmt(s))));sh.append(u1);
+    sh.append(E('div','k','Najveći fajlovi'));const u2=E('ul');all.slice(0,5).forEach(([n,s])=>u2.append(E('li',null,n.replace(/^\//,'')+' — '+fmt(s))));sh.append(u2);
+    const kids=Object.values(d.dirs);if(kids.length){sh.append(E('div','k','Uđi u podfolder'));const r=E('div','row');kids.sort((a,b)=>b.n-a.n).slice(0,12).forEach(c=>{const b=E('button',null,c.name+' · '+c.n);b.onclick=()=>openFolder(T.findIndex(x=>x.d===c));r.append(b)});sh.append(r)}
+    if(k){const b=E('button',null,'⬆ Nazad na '+(d.parent&&d.parent.path?d.parent.name:'koren'));b.onclick=()=>openFolder(T.findIndex(x=>x.d===d.parent));sh.append(b)}
+  });foot();
+}
+
+// ---------- AUDIT + panel ----------
+const SH=$('#sheet');
+function sheet(fn){SH.innerHTML='';SH.style.display='block';fn(SH);const x=E('button',null,'✕');x.style.marginTop='10px';x.onclick=()=>{SH.style.display='none';sel=-1;treeSel=-1};SH.append(x)}
+function openProject(i){
+  sel=i;const p=data[i],s=st(p),full=fullName(p);
+  goto(S[i].g.position.clone(),60);
+  sheet(sh=>{
+    sh.append(E('h2',CLS[s],p.name),E('div','m',LAB[s]+' · '+p.lang+' · '+p.kb+' KB · '+p.acc));
+    const r=E('div','row');[['⚰️ Sahrani','buried'],['🧟 Zarazi','infected'],['⚡ Oživi','immortal']].forEach(([t,v])=>{const b=E('button',null,t);b.onclick=()=>{ov[p.name]=v;save('yg_status',ov);recolor();foot();openProject(i)};r.append(b)});
+    const go=E('button',null,'🌳 Uđi u strukturu');go.onclick=()=>enterStructure(p);r.append(go);sh.append(r);
+    const box=E('div');box.id='audit';sh.append(box);
+    if(!full){box.append(E('div','m','Lokalni projekat — nema GitHub audita.'));return}
+    box.append(E('div','m','Audit: učitavam…'));
+    Promise.allSettled([gh(`/repos/${full}`),gh(`/repos/${full}/commits?per_page=5`),gh(`/repos/${full}/languages`),cfg.token?gh(`/repos/${full}/dependabot/alerts?state=open&per_page=100`):Promise.reject()]).then(([a,c,l,d])=>{
+      if(sel!==i)return;box.innerHTML='';
+      if(a.status!=='fulfilled'){box.append(E('div','m','Audit nije dostupan: '+(a.reason&&a.reason.message||'?')));return}
+      const x=a.value;box.append(E('div','k','Audit'),E('div','m','⭐ '+x.stargazers_count+' · 🍴 '+x.forks_count+' · issues '+x.open_issues_count+' · grana '+x.default_branch+' · poslednji push pre '+ago(x.pushed_at)+(x.archived?' · ARHIVIRAN':'')));
+      if(l.status==='fulfilled'){const tot=Object.values(l.value).reduce((q,w)=>q+w,0)||1;box.append(E('div','m','Jezici: '+Object.entries(l.value).slice(0,5).map(([k,v])=>k+' '+Math.round(v/tot*100)+'%').join(' · ')))}
+      if(d.status==='fulfilled'){const n=d.value.length,hi=d.value.filter(z=>['critical','high'].includes(z.security_advisory&&z.security_advisory.severity)).length;box.append(E('div','m',(n?'🧟 Dependabot: '+n+' otvorenih ('+hi+' high/critical)':'✅ Dependabot: čisto')))}else box.append(E('div','m','Dependabot: potreban token u ⚙'));
+      if(c.status==='fulfilled'){box.append(E('div','k','Poslednji commit-i'));const u=E('ul');c.value.forEach(z=>u.append(E('li',null,(z.commit.message.split('\n')[0]).slice(0,60)+' · '+ago(z.commit.author.date))));box.append(u)}
+    });
+  });
+}
+
+// ---------- UI ----------
+function foot(){
+  const f=$('#foot');f.innerHTML='';
+  if(mode==='sphere'){
+    const cnt={immortal:0,infected:0,buried:0};data.forEach(p=>cnt[st(p)]++);
+    const a=E('button',filter?'':'on','SVE '+data.length);a.onclick=()=>{filter=null;recolor();foot()};f.append(a);
+    [['immortal','c-im'],['infected','c-in'],['buried','c-bu']].forEach(([k,c])=>{const b=E('button',c+(filter===k?' on':''),LAB[k]+' '+cnt[k]);b.onclick=()=>{filter=filter===k?null:k;recolor();foot()};f.append(b)});
+  }else if(T.length){
+    const path=[];let d=T[treeSel>=0?treeSel:0].d;while(d){path.unshift(d);d=d.parent}
+    path.forEach((x,i)=>{const b=E('button',null,(i?x.name:curRepo));b.onclick=()=>openFolder(T.findIndex(t=>t.d===x));f.append(b)});
+    const bk=E('button',null,'↩ Sfera');bk.onclick=()=>collapse();f.prepend(bk);
+  }
+}
+function setMode(m){
+  mode=m;sphG.visible=true;treG.visible=m==='tree';sfT=m==='tree'?.14:1;if(m==='sphere')popDir=0;$('#labS').style.display=m==='sphere'?'':'none';$('#labT').style.display=m==='tree'?'':'none';
+  $('#tS').classList.toggle('on',m==='sphere');$('#tT').classList.toggle('on',m==='tree');SH.style.display='none';
+  if(m==='sphere'){focus.set(0,0,0);fT.set(0,0,0);distT=170}
+  foot();
+}
+$('#tS').onclick=()=>collapse();
+$('#tT').onclick=()=>{if(mode==='tree')return;if(T.length){startPop(sel>=0?data[sel]:null);openFolder(treeSel>=0?treeSel:0)}else enterStructure(sel>=0?data[sel]:null)};
+$('#q').oninput=e=>{query=e.target.value.trim().toLowerCase();if(mode==='tree')collapse();recolor();
+  if(query){const i=data.findIndex(p=>p.name.toLowerCase().includes(query));if(i>=0)goto(S[i].g.position.clone(),110)}};
+addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();$('#q').focus()}if(e.key==='Escape'){SH.style.display='none'}});
+// import
+$('#file').onchange=async e=>{const out=[];
+  for(const f of e.target.files){try{const arr=JSON.parse(await f.text());if(!Array.isArray(arr))throw new Error('nije lista');
+    arr.forEach(r=>{const days=r.pushedAt?(Date.now()-new Date(r.pushedAt))/864e5:999,s=r.isArchived||days>365?'buried':(days>120||r.isFork&&days>60?'infected':'immortal');
+      out.push({name:r.name,full:r.nameWithOwner,status:s,lang:(r.primaryLanguage&&r.primaryLanguage.name)||'—',kb:r.diskUsage||20,acc:r.owner&&r.owner.login||f.name.replace(/\.json$/,'')})})}catch(err){toast('Greška u '+f.name+': '+err.message)}}
+  if(out.length){data=out;save('yg_data',out);filter=null;buildSphere();toast('Učitano '+out.length+' repo-a')}e.target.value=''};
+// settings
+const dlg=$('#dlg');$('#cfg').onclick=()=>{$('#own').value=cfg.owner||'';$('#tok').value=cfg.token||'';dlg.showModal()};
+$('#close').onclick=()=>dlg.close();$('#save').onclick=()=>{cfg={owner:$('#own').value.trim(),token:$('#tok').value.trim()};save('yg_cfg',cfg);dlg.close();toast('Sačuvano')};
+$('#clr').onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith('ghc:')).forEach(k=>localStorage.removeItem(k));toast('Keš obrisan')};
+// audio
+let ac=null,flt=null,on=false;
+$('#snd').onclick=function(){try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();flt=ac.createBiquadFilter();flt.type='lowpass';flt.frequency.value=300;const g=ac.createGain();g.gain.value=.05;flt.connect(g);g.connect(ac.destination);[[55,'sawtooth'],[55.4,'sawtooth'],[82.4,'sine'],[110.3,'triangle']].forEach(([f,t])=>{const o=ac.createOscillator();o.type=t;o.frequency.value=f;o.connect(flt);o.start()})}on=!on;on?ac.resume():ac.suspend();this.textContent=on?'🔊':'🔇'}catch(e){toast('Nema audio')}};
+// PWA
+let ip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#inst').style.display=''});
+$('#inst').onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice;ip=null;$('#inst').style.display='none'};
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+
+// ---------- input ----------
+const cv=$('#c'),ptr=new Map();let moved=0,pd=0,vx=0;
+const act=()=>mode==='sphere'?sphG:treG;
+cv.addEventListener('pointerdown',e=>{ptr.set(e.pointerId,[e.clientX,e.clientY]);moved=0;held=false;clearTimeout(lp);
+  if(mode==='sphere'&&ptr.size===1){const h=hit(e);if(h)lp=setTimeout(()=>{if(moved<6&&ptr.size===1){held=true;sel=h.object.userData.i;enterStructure(data[sel])}},450)}
+  cv.setPointerCapture(e.pointerId);if(ptr.size===2){const [a,b]=[...ptr.values()];pd=Math.hypot(a[0]-b[0],a[1]-b[1])}});
+cv.addEventListener('pointermove',e=>{const o=ptr.get(e.pointerId);if(!o)return;const dx=e.clientX-o[0],dy=e.clientY-o[1];ptr.set(e.pointerId,[e.clientX,e.clientY]);moved+=Math.abs(dx)+Math.abs(dy);
+  if(ptr.size===2){const [a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);distT=Math.max(15,Math.min(300,distT*pd/d));pd=d;return}
+  const g=act();g.rotation.y+=dx*.005;g.rotation.x=Math.max(-1.3,Math.min(1.3,g.rotation.x+dy*.005));vx=dx*.005});
+cv.addEventListener('pointerup',e=>{ptr.delete(e.pointerId);clearTimeout(lp);if(held){held=false;return}if(moved<6&&!ptr.size)pick(e)});
+cv.addEventListener('pointercancel',e=>ptr.delete(e.pointerId));
+cv.addEventListener('wheel',e=>{e.preventDefault();distT=Math.max(15,Math.min(300,distT*(1+e.deltaY*.0012)))},{passive:false});
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+function hit(e){ndc.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ndc,cam);return ray.intersectObjects((mode==='sphere'?S:T).map(n=>n.box))[0]}
+function pick(e){const h=hit(e);
+  if(popDir)return;
+  if(h){mode==='sphere'?openProject(h.object.userData.i):openFolder(h.object.userData.k)}}
+function resize(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+
+// ---------- loop ----------
+const v=new THREE.Vector3();
+function lab(arr,g,pulse){arr.forEach((n,i)=>{n.g?n.g.getWorldPosition(v):g.localToWorld(v.copy(n.pos));v.project(cam);const behind=v.z>1;
+  n.lb.style.display=behind?'none':'block';n.lb.style.left=((v.x+1)/2*innerWidth)+'px';n.lb.style.top=((1-v.y)/2*innerHeight+8)+'px';
+  n.lb.style.opacity=n.dim?'.1':String(Math.max(.12,Math.min(1,1.5-v.z*1.4))*(pulse?1:Math.min(1,pop*1.5)));
+  if(pulse){const s=st(data[i]);if(s==='infected'&&!n.dim)n.sp.material.opacity=(.45+.4*Math.sin(performance.now()*.004+i))*sf;else n.sp.material.opacity=n.base*sf}})}
+function frame(){requestAnimationFrame(frame);
+  const now=performance.now(),dt=Math.min(.05,(now-lastT)/1000);lastT=now;
+  if(popDir){pop=Math.max(0,Math.min(1,pop+popDir*dt/.95));const e=1-Math.pow(1-pop,3),x=pop-1,b=1+2.5*x*x*x+1.5*x*x;
+    treG.position.lerpVectors(popFrom,popTo,e);treG.scale.setScalar(Math.max(.001,END*b));treG.rotation.y+=(1-e)*.05*popDir;
+    if(popDir>0&&pop>=1)popDir=0;else if(popDir<0&&pop<=0){popDir=0;setMode('sphere')}}
+  if(Math.abs(sf-sfT)>.002){sf+=(sfT-sf)*.12;S.forEach(n=>{n.ed.material.opacity=(n.dim?.12:1)*sf;n.box.material.opacity=(n.dim?.08:.55)*sf;n.sp.material.opacity=n.base*sf});if(sphLinks)sphLinks.material.opacity=.26*sf}
+  if(!ptr.size){act().rotation.y+=.0011+vx*.9;vx*=.95}
+  focus.lerp(fT,.07);dist+=(distT-dist)*.07;
+  const g=act();g.updateMatrixWorld();tmp.copy(focus);g.localToWorld(tmp);
+  cam.position.set(tmp.x,tmp.y+dist*.12,tmp.z+dist);cam.lookAt(tmp);
+  if(flt)flt.frequency.value=150+Math.max(0,300-dist)*6;
+  if(mode==='sphere')lab(S,sphG,true);else lab(T,treG,false);
+  R.render(scene,cam);}
+buildSphere();setMode('sphere');requestAnimationFrame(frame);toast('Klik = audit · drži pritisnut na monolit = struktura iskače ka tebi',5500);
+})();
+</script>
+</body>
+</html>

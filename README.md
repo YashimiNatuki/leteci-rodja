@@ -15,6 +15,8 @@ npm start
 
 Otvori `http://localhost:15200`.
 
+Za pregled projekata otvori **Project Observatory** iz topbara ili direktno `http://localhost:15200/graveyard/`. To je lazy WebGL ruta; glavni low-power cockpit ne plaća Three.js startup dok se Observatory ne otvori.
+
 ## Capability surface
 
 | Modul | Svrha | Low-power ponašanje |
@@ -24,6 +26,7 @@ Otvori `http://localhost:15200`.
 | `copilot` | SSE chat, history, commands, macros | bounded history od 40 entries, safe rendering, throttled token paint |
 | `visual-stage` | Canvas avatar i smoke kontrole | 32 default particles, cap 96, reduced-motion guard |
 | `radio` | playlist, playback, volume, visualizer | analyser rad samo kada radio svira |
+| `graveyard/` | Project Observatory: sphere, audit i repo tree | izolovana lazy ruta, lokalno vendored Three.js |
 
 ## Commands
 
@@ -59,6 +62,7 @@ public/js/smoke.js         particle engine implementation
 public/js/avatar3d.js      canvas avatar implementation
 public/js/audio-player.js  Web Audio playback implementation
 docs/                      capability map, spec and implementation plan
+public/graveyard/          opt-in Project Observatory from the supplied Graveyard archive
 ```
 
 ## Design and performance rules
