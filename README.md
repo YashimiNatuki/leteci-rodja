@@ -9,6 +9,7 @@ Leteći Rođa je mali lokalni operator cockpit za četiri jasno odvojene capabil
 ```bash
 npm install
 npm run check
+npm run perf
 npm start
 ```
 
@@ -20,7 +21,7 @@ Otvori `http://localhost:15200`.
 |---|---|---|
 | `runtime` | Ollama health, model discovery, lag/heap | polling na 15s, bez teških dependency-ja |
 | `modes` | Chill, Ninja, Diagnostic, Sleep | state u `localStorage`, bez dodatnog runtime-a |
-| `copilot` | SSE chat, history, commands, macros | bounded history od 40 entries, safe rendering |
+| `copilot` | SSE chat, history, commands, macros | bounded history od 40 entries, safe rendering, throttled token paint |
 | `visual-stage` | Canvas avatar i smoke kontrole | 32 default particles, cap 96, reduced-motion guard |
 | `radio` | playlist, playback, volume, visualizer | analyser rad samo kada radio svira |
 
@@ -41,7 +42,7 @@ Backend surface ostaje stabilan:
 - `GET /api/tracks` — local tracks and online streams
 - `POST /api/chat` — SSE streaming with controlled offline fallback
 
-Ollama je opcioni upstream na `http://127.0.0.1:11434`. Kada nije dostupan, UI i dalje radi kroz server fallback.
+Ollama je opcioni upstream na `http://127.0.0.1:11434`. Kada nije dostupan, UI i dalje radi kroz server fallback. Proxy prekida upstream request kada browser prekine konekciju i ignoriše malformed NDJSON frame bez rušenja procesa.
 
 ## Source map
 
@@ -72,6 +73,7 @@ The refactor is validated with:
 
 ```bash
 npm run check
+npm run perf
 ```
 
-Browser acceptance covers mode switching, diagnostic commands, fallback SSE chat, quick macros, clear-history, smoke controls, track selection and live radio playback. Live duration is rendered as `LIVE`; unreachable audio reports `AUDIO ERROR` instead of leaking `Infinity:NaN`.
+Browser acceptance covers mode switching, diagnostic commands, fallback SSE chat, quick macros, clear-history, smoke controls, track selection and live radio playback. Live duration is rendered as `LIVE`; unreachable audio reports `AUDIO ERROR` instead of leaking `Infinity:NaN`. Detailed evidence lives in `docs/copilot-sse-performance-review.md`.

@@ -9,6 +9,7 @@ const path = require("node:path");
 const PORT = Number(process.env.PORT || 15200);
 const OLLAMA_HOST = process.env.OLLAMA_API_URL || "http://127.0.0.1:11434";
 const DEFAULT_MODEL = process.env.OLLAMA_MODEL || "qwen2.5-coder:7b";
+const VALID_MODES = new Set(["chill", "ninja", "diag", "sleep"]);
 const app = express();
 
 app.disable("x-powered-by");
@@ -49,10 +50,10 @@ app.get("/api/tracks", (_req, res) => {
   ] });
 });
 
-const writeSse = (res, payload) => res.write(`data: ${JSON.stringify(payload)}\n\n`);
+const writeSse = (res, payload) => { if (!res.writableEnded && !res.destroyed) res.write(`data: ${JSON.stringify(payload)}\n\n`); };
 
-async function streamOllama(res, payload) {
-  const response = await fetch(`${OLLAMA_HOST}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+async function streamOllama(res, payload, signal) {
+  const response = await fetch(`${OLLAMA_HOST}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload), signal });
   if (!response.ok || !response.body) throw new Error(`Ollama HTTP ${response.status}`);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -63,11 +64,16 @@ async function streamOllama(res, payload) {
     const lines = buffer.split(/\r?\n/);
     buffer = lines.pop() || "";
     for (const line of lines) {
-      if (line.trim()) { const event = JSON.parse(line); writeSse(res, { token: event.response || "", done: Boolean(event.done) }); }
+      if (!line.trim()) continue;
+      try { const event = JSON.parse(line); writeSse(res, { token: event.response || "", done: false }); }
+      catch { console.warn("[OLLAMA_BAD_FRAME] ignored malformed upstream frame"); }
     }
     if (done) break;
   }
-  if (buffer.trim()) { const event = JSON.parse(buffer); writeSse(res, { token: event.response || "", done: Boolean(event.done) }); }
+  if (buffer.trim()) {
+    try { const event = JSON.parse(buffer); writeSse(res, { token: event.response || "", done: false }); }
+    catch { console.warn("[OLLAMA_BAD_FRAME] ignored malformed final frame"); }
+  }
 }
 
 function fallbackReply(prompt, mode, model) {
@@ -78,17 +84,27 @@ function fallbackReply(prompt, mode, model) {
 app.post("/api/chat", async (req, res) => {
   const { prompt, mode = "chill", model = DEFAULT_MODEL, system = "" } = req.body || {};
   if (typeof prompt !== "string" || !prompt.trim()) return res.status(400).json({ error: "Missing or invalid prompt" });
+  const safeMode = VALID_MODES.has(mode) ? mode : "chill";
+  const safeModel = typeof model === "string" && /^[\w.:/-]{1,120}$/.test(model) ? model : DEFAULT_MODEL;
+  const upstreamController = new AbortController();
+  let clientGone = false;
+  const abortUpstream = () => { clientGone = true; upstreamController.abort(); };
+  req.once("aborted", abortUpstream);
+  res.once("close", () => { if (!res.writableEnded) abortUpstream(); });
   res.status(200).set({ "content-type": "text/event-stream; charset=utf-8", "cache-control": "no-cache, no-transform", connection: "keep-alive", "x-accel-buffering": "no" });
   if (typeof res.flushHeaders === "function") res.flushHeaders();
   try {
-    await streamOllama(res, { model, prompt: prompt.trim(), system, stream: true, options: { temperature: mode === "ninja" ? 0.15 : mode === "diag" ? 0.3 : 0.8, top_p: 0.95 } });
+    await streamOllama(res, { model: safeModel, prompt: prompt.trim(), system: typeof system === "string" ? system.slice(0, 12000) : "", stream: true, options: { temperature: safeMode === "ninja" ? 0.15 : safeMode === "diag" ? 0.3 : 0.8, top_p: 0.95 } }, upstreamController.signal);
   } catch (error) {
-    for (const token of fallbackReply(prompt.trim(), mode, model).split(/(\s+)/)) writeSse(res, { token, done: false });
+    if (clientGone || error.name === "AbortError") return;
+    for (const token of fallbackReply(prompt.trim(), safeMode, safeModel).split(/(\s+)/)) writeSse(res, { token, done: false });
     console.warn(`[OLLAMA_FALLBACK] ${error.message}`);
+  } finally {
+    req.off("aborted", abortUpstream);
   }
   writeSse(res, { token: "", done: true });
-  res.write("data: [DONE]\n\n");
-  res.end();
+  if (!res.writableEnded && !res.destroyed) res.write("data: [DONE]\n\n");
+  if (!res.writableEnded) res.end();
 });
 
 app.get("*", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));

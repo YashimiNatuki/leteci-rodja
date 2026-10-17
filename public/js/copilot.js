@@ -1,4 +1,4 @@
-// Leteći Rođa — copilot chat, SSE stream, commands and bounded history.
+// Leteći Rođa — copilot chat, throttled SSE stream, commands and bounded history.
 class RodjaCopilot {
   constructor({ log, input, form, send, model, modeLabel, onMode, onActivity, onBusy }) {
     this.log = log; this.input = input; this.form = form; this.send = send; this.model = model; this.modeLabel = modeLabel;
@@ -7,7 +7,7 @@ class RodjaCopilot {
     this.form.addEventListener("submit", event => { event.preventDefault(); this.handle(this.input.value); });
   }
   readHistory() { try { const value = JSON.parse(localStorage.getItem(this.historyKey) || "[]"); return Array.isArray(value) ? value.slice(-this.maxHistory) : []; } catch { return []; } }
-  save() { localStorage.setItem(this.historyKey, JSON.stringify(this.history.slice(-this.maxHistory))); }
+  save() { try { localStorage.setItem(this.historyKey, JSON.stringify(this.history.slice(-this.maxHistory))); } catch { this.notice("Istorija nije sačuvana: localStorage quota ili privacy mode."); } }
   rich(target, text) {
     target.replaceChildren(); const source = String(text || ""); const pattern = /```([\w-]*)\n?([\s\S]*?)(```|$)/g; let cursor = 0; let match;
     while ((match = pattern.exec(source))) {
@@ -27,10 +27,13 @@ class RodjaCopilot {
   notice(text) { this.append("system", "SYSTEM", text); }
   restore() { for (const entry of this.history) this.append(entry.role === "user" ? "user" : "assistant", entry.role === "user" ? "MR. Y" : "LETEĆI ROĐA", entry.content); if (this.history.length) this.notice(`Učitano ${this.history.length} poruka · /clear za reset.`); }
   async stream(body, target) {
-    const reader = body.getReader(); const decoder = new TextDecoder(); let buffer = ""; let output = "";
-    const consume = line => { if (!line.startsWith("data:")) return; const payload = line.slice(5).trim(); if (!payload || payload === "[DONE]") return; try { const event = JSON.parse(payload); if (event.token) { output += event.token; this.rich(target, output); this.log.scrollTop = this.log.scrollHeight; } } catch {} };
+    if (!body) throw new Error("SSE response body is empty");
+    const reader = body.getReader(); const decoder = new TextDecoder(); let buffer = ""; let output = ""; let scheduled = false; let renderPending = false;
+    const render = () => { scheduled = false; if (renderPending) { renderPending = false; this.rich(target, output); this.log.scrollTop = this.log.scrollHeight; } };
+    const scheduleRender = () => { renderPending = true; if (!scheduled) { scheduled = true; requestAnimationFrame(render); } };
+    const consume = line => { if (!line.startsWith("data:")) return; const payload = line.slice(5).trim(); if (!payload || payload === "[DONE]") return; try { const event = JSON.parse(payload); if (event.token) { output += event.token; scheduleRender(); } } catch { /* ignore malformed SSE frame; final request error remains visible */ } };
     while (true) { const { done, value } = await reader.read(); buffer += decoder.decode(value || new Uint8Array(), { stream: !done }); const lines = buffer.split(/\r?\n/); buffer = lines.pop() || ""; lines.forEach(consume); if (done) break; }
-    if (buffer) consume(buffer); return output;
+    buffer += decoder.decode(); if (buffer) consume(buffer); if (renderPending) render(); return output;
   }
   setMode(mode, announce = true) { const active = this.onMode(mode); this.modeLabel.textContent = window.RODJA_MODES.config.label; if (announce) this.notice(`[${window.RODJA_MODES.config.label}] mod aktivan.`); return active; }
   async handle(value) {
@@ -43,7 +46,7 @@ class RodjaCopilot {
     catch (error) { this.rich(responseTarget, error.name === "AbortError" ? "[PREKINUTO]" : `Lokalni copilot nije dostupan (${error.message}). Fallback server ostaje spreman.`); this.history.pop(); this.save(); }
     finally { this.busy = false; this.onBusy(false); this.controller = null; this.input.focus(); }
   }
-  exportHistory() { const blob = new Blob([JSON.stringify(this.history, null, 2)], { type: "application/json" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "rodja-chat.json"; link.click(); URL.revokeObjectURL(link.href); }
+  exportHistory() { const blob = new Blob([JSON.stringify(this.history, null, 2)], { type: "application/json" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "rodja-chat.json"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 0); }
   cancel() { this.controller?.abort(); }
 }
 window.RodjaCopilot = RodjaCopilot;
