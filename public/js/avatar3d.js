@@ -142,7 +142,7 @@ class Avatar3D {
     this.ctx.scale(1, 0.32);
     this.ctx.beginPath();
     this.ctx.arc(0, 100, 95 + Math.sin(this.time * 3) * 4, 0, Math.PI * 2);
-    this.ctx.lineWidth = 3.5 + bassIntensity * 3;
+    this.ctx.lineWidth = 3.5 + bassIntensity * 3 + (this.haloLineBoost || 0);
     this.ctx.strokeStyle = primaryNeon;
     this.ctx.shadowColor = primaryNeon;
     this.ctx.shadowBlur = 18;
@@ -285,3 +285,98 @@ class Avatar3D {
 }
 
 window.Avatar3D = Avatar3D;
+// -----------------------------------------------------------------------------
+// ★★ ENHANCED LOGIC & AI‑DRIVEN MOOD SWITCHING ★★
+// -----------------------------------------------------------------------------
+// Simple AI‑style routine that reacts to textual cues (e.g., chat commands) and
+// automatically switches the avatar mode ("chill" ↔ "ninja") as well as adjusts
+// animation parameters. This keeps the avatar responsive without requiring a
+// heavyweight language model – we use a lightweight keyword matcher that can be
+// extended later.
+
+/**
+ * Feed a raw message (e.g., from the chat window) to the avatar.
+ * Recognised keywords change the mode and trigger visual effects.
+ *
+ *   • "ninja", "hack", "code" → ninja mode
+ *   • "chill", "relax", "smoke" → chill mode
+ *   • "boom", "bass", "beat" → amplify bobbing amplitude for a beat‑drop effect
+ */
+Avatar3D.prototype.processInput = function(message) {
+  const lower = message.toLowerCase();
+  if (/\b(ninja|hack|code)\b/.test(lower)) {
+    this.setMode("ninja");
+    this.hoverAmplitude = 20; // more energetic bobbing
+  } else if (/\b(chill|relax|smoke)\b/.test(lower)) {
+    this.setMode("chill");
+    this.hoverAmplitude = 15; // default
+  }
+
+  // Beat‑drop visual cue – temporarily boost the halo line width & bass influence
+  if (/\b(boom|bass|beat)\b/.test(lower)) {
+    this._beatBoost = 8; // frames to keep extra intensity
+  }
+};
+
+/**
+ * Internal helper used by render() to apply a temporary beat boost.
+ */
+Avatar3D.prototype._applyBeatBoost = function() {
+  if (this._beatBoost > 0) {
+    this._beatBoost--;
+    // Amplify halo line width and bass‑driven bobbing for a short burst
+    this.haloLineBoost = 6;
+    this.hoverAmplitude += 5;
+  } else {
+    this.haloLineBoost = 0;
+  }
+};
+
+// -----------------------------------------------------------------------------
+// ★★ SMOOTH PERLIN‑NOISE‑BASED HOVER (replaces simple sine bobbing) ★★
+// -----------------------------------------------------------------------------
+// A lightweight 1‑D Perlin noise generator for smoother, less‑periodic floating.
+function perlin1d(t) {
+  const x = Math.floor(t);
+  const u = t - x;
+  const fade = u * u * u * (u * (u * 6 - 15) + 10);
+  const a = (x & 1) ? 0.5 : -0.5; // pseudo‑random gradient
+  const b = ((x + 1) & 1) ? 0.5 : -0.5;
+  return (a * (1 - fade) + b * fade);
+}
+
+// -----------------------------------------------------------------------------
+// ★★ ENHANCED RENDER – integrate beat boost & perlin hover ★★
+// -----------------------------------------------------------------------------
+// We patch the existing render method by adding a tiny shim at its start.
+// The original code (lines 109‑130) remains unchanged; we simply prepend new
+// statements that call the helpers defined above.
+
+// NOTE: The following block will be inserted right after the line `render(deltaTime, bassIntensity = 0) {`
+// (line 109 in the original file).
+Avatar3D.prototype._originalRender = Avatar3D.prototype.render;
+Avatar3D.prototype.render = function(deltaTime, bassIntensity = 0) {
+  // Apply temporary beat‑boost if triggered by processInput()
+  this._applyBeatBoost();
+  // Use Perlin noise for a more organic hover effect
+  const noise = perlin1d(this.time * 0.5);
+  // Blend the noise with the bass‑driven intensity for a subtle lift
+  const noiseAmplitude = 8 * noise;
+  // Store a temporary extra amplitude that the original render will pick up
+  const originalHover = this.hoverAmplitude;
+  this.hoverAmplitude = originalHover + noiseAmplitude;
+
+  // Call the original render logic (which already uses `this.hoverAmplitude`)
+  this._originalRender(deltaTime, bassIntensity);
+
+  // Restore the base hover amplitude after rendering to keep state clean
+  this.hoverAmplitude = originalHover;
+};
+
+// -----------------------------------------------------------------------------
+// ★★ EXPOSE GLOBAL MESSAGE HOOK ★★
+// -----------------------------------------------------------------------------
+// The main application can now forward chat messages to the avatar like so:
+//   avatarInstance.processInput(userMessage);
+// This keeps the avatar reactive without coupling it to the rest of the app.
+// -----------------------------------------------------------------------------

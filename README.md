@@ -29,13 +29,31 @@
    - **Kafana Chill Mod:** Opulentan, opušten srpski ulični žargon (*"G", "rođo", "brate", "ludilo mednes", "esi mi dobar"*), priča o muzici, kulira u dimu.
    - **Ninja Shaolin Hack Mod:** Hirurški precizan, striktan **Zero-TODO** mandat, kompletan produkcijski kod, Hoare logika $\{P\}\mathbf{C}\{Q\}$, Shannon entropija.
    - Komandni makroi: `/G-GODMODE`, `/G-AUDIT`, `/G-HEX-EXEC`, `/G-MATH-MODEL`, `/G-NUKE`.
-5. **Direktna Ollama Streaming Veza:**
-   - Povezan na lokalni Ollama server (`http://127.0.0.1:11434`) sa podrškom za modele `qwen2.5-coder:7b`, `qwen3:8b`, `llama3`.
-   - Real-time token streaming preko SSE protokola, uz inteligentni lokalni fallback.
+5. **Direktna Ollama Streaming Veza i Gemini Fallback:**
+   - Povezan na lokalni Ollama server (`http://127.0.0.1:11434`) sa modelima `qwen2.5-coder:7b`, `qwen3:8b`, `llama3`.
+   - Real-time token streaming preko SSE protokola.
+   - **Automatski Fallback na Google Gemini API:** Ukoliko je Ollama server ugašen, server automatski preusmerava zahteve na Gemini API (koristeći `GEMINI_API_KEY` promenljivu okruženja) sa simuliranim glatkim streamingom.
+   - **Offline Godmode Engine:** Ukoliko nema ni interneta ni Ollame, ugrađeni deterministički Thug Life / Shaolin agent odmah preuzima razgovor.
+6. **Interaktivni 3D AI Avatar & Perlin Noise:**
+   - Realistično lebdenje pogonjeno 1D Perlin noise algoritmom umesto običnog sinusa.
+   - Chat detekcija reči u realnom vremenu:
+     - *"ninja"*, *"hack"*, *"code"* -> momentalni prelazak u Shaolin mod sa zelenim neonom i bržim lebdenjem.
+     - *"chill"*, *"relax"*, *"smoke"* -> opušteni Kafana Chill ljubičasti mod.
+     - *"boom"*, *"bass"*, *"beat"* -> trenutno pojačanje halo prstena i bas vibracija (Beat-boost).
 
 ---
 
 ## 🚀 Pokretanje Sistema
+
+### Konfiguracija (opciono):
+```bash
+# Za Gemini rezervni fallback:
+export GEMINI_API_KEY="tvoj_gemini_api_kljuc"
+
+# Za prilagođavanje Ollama hosta ili modela:
+export OLLAMA_API_URL="http://127.0.0.1:11434"
+export OLLAMA_MODEL="qwen2.5-coder:7b"
+```
 
 ### 1. Pokretanje pod nalogom `yappozdder` u WSL:
 

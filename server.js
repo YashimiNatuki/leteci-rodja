@@ -108,39 +108,75 @@ app.post("/api/chat", async (req, res) => {
       }
     };
 
-    const ollamaRes = await fetch(`${OLLAMA_HOST}/api/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!ollamaRes.ok) {
-      throw new Error(`Ollama responded with HTTP ${ollamaRes.status}`);
-    }
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    const reader = ollamaRes.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n").filter(l => l.trim().length > 0);
-      for (const line of lines) {
+    // Try Ollama first; if it fails, fall back to Gemini (if API key provided)
+    let llmResponse = null;
+    try {
+      const ollamaRes = await fetch(`${OLLAMA_HOST}/api/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!ollamaRes.ok) {
+        throw new Error(`Ollama responded with HTTP ${ollamaRes.status}`);
+      }
+      llmResponse = ollamaRes;
+    } catch (ollamaErr) {
+      console.warn(`[OLLAMA_FALLBACK] ${ollamaErr.message}`);
+      const geminiKey = process.env.GEMINI_API_KEY;
+      if (geminiKey) {
         try {
-          const parsed = JSON.parse(line);
-          res.write(`data: ${JSON.stringify({ token: parsed.response, done: parsed.done })}\n\n`);
-        } catch (e) {
-          // ignore partial json
+          const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1/models/${targetModel}:generateContent?key=${geminiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: prompt }] }],
+              generationConfig: { temperature: mode === "ninja" ? 0.1 : 0.8 }
+            })
+          });
+          if (!geminiRes.ok) throw new Error(`Gemini HTTP ${geminiRes.status}`);
+          const gemData = await geminiRes.json();
+          const completion = gemData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const words = completion.split(/\s+/);
+          // Simulate streaming tokens
+          for (const w of words) {
+            res.write(`data: ${JSON.stringify({ token: w + " ", done: false })}\n\n`);
+            await new Promise(r => setTimeout(r, 30));
+          }
+          res.write(`data: ${JSON.stringify({ token: "", done: true })}\n\n`);
+          res.write("data: [DONE]\n\n");
+          res.end();
+          return;
+        } catch (geminiErr) {
+          console.error(`[GEMINI_FALLBACK] ${geminiErr.message}`);
         }
       }
     }
-    res.write("data: [DONE]\n\n");
-    res.end();
+
+    // If we have a successful response (Ollama), stream it
+    if (llmResponse) {
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      const reader = llmResponse.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n").filter(l => l.trim().length > 0);
+        for (const line of lines) {
+          try {
+            const parsed = JSON.parse(line);
+            res.write(`data: ${JSON.stringify({ token: parsed.response, done: parsed.done })}\n\n`);
+          } catch (e) {
+            // ignore partial json
+          }
+        }
+      }
+      res.write("data: [DONE]\n\n");
+      res.end();
+      return;
+    }
   } catch (err) {
     console.warn(`[OLLAMA_FALLBACK] Error connecting to Ollama: ${err.message}. Using high-intelligence fallback.`);
     

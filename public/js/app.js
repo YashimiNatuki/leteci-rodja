@@ -158,10 +158,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const prompt = promptText.trim();
     promptInput.value = "";
     appendUserMessage(prompt);
-
+    // Forward user message to avatar for AI‑driven reactions
+    if (avatar && typeof avatar.processInput === "function") {
+      avatar.processInput(prompt);
+    }
     // Big puff of smoke on question!
     smoke.triggerPuff(false);
-
     // Check macro first
     const macroResult = window.RODJA_MINDSET.checkMacro(prompt);
     if (macroResult) {
