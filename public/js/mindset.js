@@ -140,6 +140,19 @@ OPERATIONAL DIRECTIVE:
              `Primer korišćenja: /G-YSHELL (137 * 29) + 17 ili /G-YSHELL Math.sqrt(256) * 4`;
     },
 
+    "/G-CANNON": (rawInput) => {
+      const parts = rawInput.split(/\s+/);
+      const task = parts.length > 1 ? parts.slice(1).join(" ") : "Inženjerski Mega-Zadatak";
+      return `⚡ [CANNON INŽENJERSKI MANDAT: POKRENUT]\n` +
+             `Cilj: "${task}"\n` +
+             `--------------------------------------------------\n` +
+             `1. 📐 UGOVOR MODULA & GRANICE: {P_Precondition} verifikovano.\n` +
+             `2. 🥷 BARE-METAL KOD: 100% kompletan kod bez // TODO izgovora.\n` +
+             `3. 🧪 PLAN PROVERE: {Q_Postcondition} - regresioni testovi, nula curenja.\n` +
+             `--------------------------------------------------\n` +
+             `Upozorenje: Predlog je formalno pripremljen. Stvarno izvršavanje vezano je za Y$hell i potvrđene rezultate.`;
+    },
+
     "/G-NUKE": (rawInput) => {
       return `💥 [SYSTEM RE-HYDRATION & REFACTOR MATRIX]\n` +
              `Tearing down legacy demo constraints. Initializing clean architecture under user yappozdder.\n` +
