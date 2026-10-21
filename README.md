@@ -1,8 +1,12 @@
+# ⚠️ Repo audit — pregled pre pokretanja
+
+**[Otvori REPO_AUDIT.md](docs/REPO_AUDIT.md)** (17.10.2026): nedostajući npm manifest, lažni offline AI odgovor, stream buffering i mrežna izloženost. Predloženi `package.json` je samo na audit grani; nije testiran runtime. Ne smatraj projekat produkcijski verifikovanim niti bezbedno izloženim LAN-u.
+
 # 🛸 LETEĆI ROĐA — 3D Cyberpunk Mascot, Radio & AI Copilot (v5.0)
 
 > **Autor:** Konglomerat Preduzeće™ & The Chief Architect (Yashimi Natuki)  
 > **Korisnik:** `yappozdder` (Ubuntu-24.04 WSL2)  
-> **Status:** SOVEREIGN / ZERO-TRUST / AIR-GAPPED LOOPBACK / 100% PRODUCTION READY
+> **Status:** razvojni prototip; bezbednost, AI fallback i streaming još nisu verifikovani
 
 ---
 
