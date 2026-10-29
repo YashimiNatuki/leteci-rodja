@@ -1,0 +1,39 @@
+# Base44 sandbox/dev compose for Leteći Rođa.
+# Runs the Express app straight from the cloned source (live reload via `node --watch`).
+services:
+  web:
+    image: node:22
+    labels:
+      base44.project: Leteći Rođa
+      base44.kind: web
+      base44.port: "3000"
+    working_dir: /app
+    ports:
+      - "3000:15200"
+    environment:
+      - PORT=15200
+    env_file:
+      - /run/base44/app.env
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    # Dependencies are installed at startup, after the bind mount is in place,
+    # so edits to server.js / public/ are picked up without an image rebuild.
+    command:
+      - sh
+      - -ec
+      - npm install --no-audit --no-fund --omit=dev && exec npm run dev
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:15200/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 8s
+      retries: 5
+      start_period: 40s
+    restart: on-failure
+
+volumes:
+  node_modules:

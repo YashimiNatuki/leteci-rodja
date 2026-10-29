@@ -265,6 +265,9 @@ app.post("/api/chat", async (req, res) => {
       res.end();
       return;
     }
+    // No Ollama and no Gemini key: enter the offline engine below instead of
+    // leaving the request unanswered.
+    throw new Error("No LLM backend available");
   } catch (err) {
     console.warn(`[OLLAMA_FALLBACK] Error connecting to Ollama: ${err.message}. Using high-intelligence fallback.`);
     

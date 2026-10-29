@@ -1,0 +1,14 @@
+{
+  "name": "leteci-rodja",
+  "version": "1.0.0",
+  "description": "Leteći Rođa — 3D Cyberpunk Mascot, Radio & AI Copilot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
