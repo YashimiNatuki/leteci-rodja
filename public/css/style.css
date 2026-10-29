@@ -1,18 +1,20 @@
 /* ==============================================================================
-   🚀 LETEĆI ROĐA — CYBERPUNK HUD & VISUAL STYLING
-   Konglomerat Preduzeće™ & The Chief Architect
-   Offline-First / Zero CDN / Pure Native CSS
+   🚀 LETEĆI ROĐA & AIGAD — ULTRA CINEMATIC HUD & GLASS STYLING (v5.0-GODMODE)
+   Konglomerat Preduzeće™ & The Chief Architect (Yashimi Natuki)
+   Offline-First / Zero CDN / Pure Native CSS / Glassmorphism
    ============================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800;900&display=swap');
 
 :root {
-  --color-bg: #090a0f;
-  --color-surface: #0d0e17;
-  --color-purple-primary: #a855f7;
-  --color-pink-primary: #ec4899;
-  --color-emerald-primary: #10b981;
-  --color-amber-primary: #f59e0b;
+  --color-bg: #07080f;
+  --color-surface: rgba(13, 14, 23, 0.82);
+  --color-purple: #a855f7;
+  --color-purple-dark: #3b0764;
+  --color-pink: #ec4899;
+  --color-cyan: #06b6d4;
+  --color-emerald: #10b981;
+  --color-amber: #f59e0b;
 }
 
 * {
@@ -20,87 +22,470 @@
   margin: 0;
   padding: 0;
   font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background-color: var(--color-bg);
-  color: #e2e8f0;
+html, body {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  background-color: var(--color-bg);
+  color: #f1f5f9;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* CYBER GRID PATTERN */
+/* BACKGROUND GRID & AMBIENT RADIAL */
+.cyber-bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, rgba(120, 40, 200, 0.18), transparent 70%),
+              radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.12), transparent 50%);
+  z-index: 0;
+}
+
 .grid-overlay {
   position: absolute;
   inset: 0;
-  background-size: 40px 40px;
+  background-size: 48px 48px;
   background-image: 
-    linear-gradient(to right, rgba(168, 85, 247, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(168, 85, 247, 0.05) 1px, transparent 1px);
-  mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+    linear-gradient(to right, rgba(168, 85, 247, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.04) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+  pointer-events: none;
+}
+
+/* VOLUMETRIC SMOKE CANVAS */
+#smoke-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* SCANLINE FX */
 body::after {
-  content: " ";
+  content: "";
   display: block;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
   background-size: 100% 4px;
-  z-index: 99;
+  z-index: 999;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.35;
 }
 
-/* CUSTOM SCROLLBAR */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 5px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.3);
-  border-radius: 4px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(236, 72, 153, 0.5);
+/* TOP STATUS BAR */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: rgba(13, 14, 23, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 50;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-/* MODE BUTTONS */
-.mode-btn {
-  border: 1px solid transparent;
+/* FOOTER TELEMETRY */
+.bottom-telemetry {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 34px;
+  background: rgba(9, 10, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(168, 85, 247, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  font-size: 11px;
+  color: #64748b;
+  z-index: 50;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* ==============================================================================
+   🛸 THE FLOATING 3D COMPANION (CENTRAL HERO ENTITY)
+   ============================================================================== */
+#floating-companion {
+  position: fixed;
+  width: 340px;
+  height: 440px;
+  z-index: 30;
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  will-change: transform, left, top;
+}
+
+#floating-companion:active {
+  cursor: grabbing;
+}
+
+/* Ambient Character Halo / Aura */
+.companion-aura {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(236, 72, 153, 0.08) 50%, transparent 75%);
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 0;
+  animation: auraPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes auraPulse {
+  0% { transform: scale(0.92); opacity: 0.6; }
+  100% { transform: scale(1.1); opacity: 0.95; }
+}
+
+/* 3D WebGL Scene Stage */
+.companion-stage-box {
+  position: relative;
+  width: 300px;
+  height: 330px;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Character Tag & State Tooltip */
+.companion-badge {
+  position: absolute;
+  top: 8px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(7, 8, 15, 0.75);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  backdrop-filter: blur(8px);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+}
+
+/* ==============================================================================
+   💊 FLOATING QUICK ACTION PILL DOCK (ATTACHED TO COMPANION)
+   ============================================================================== */
+.companion-pill-dock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(13, 14, 23, 0.85);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.2);
+  z-index: 10;
+  margin-top: 4px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dock-btn {
+  background: transparent;
+  border: none;
+  outline: none;
   cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #cbd5e1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
+
+.dock-btn:hover {
+  background: rgba(168, 85, 247, 0.25);
+  color: #ffffff;
+  transform: scale(1.12);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.dock-btn.active {
+  background: linear-gradient(135deg, #9333ea, #db2777);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(219, 39, 119, 0.6);
+}
+
+.dock-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(5, 6, 10, 0.9);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #e2e8f0;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+}
+
+.dock-btn:hover .dock-tooltip {
+  opacity: 1;
+}
+
+/* ==============================================================================
+   📂 SLIDE-OUT GLASS DRAWERS & MODALS (EXPANDABLE/COLLAPSIBLE)
+   ============================================================================== */
+.glass-drawer {
+  position: fixed;
+  top: 60px;
+  bottom: 42px;
+  background: rgba(11, 12, 20, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+/* CHAT COPILOT DRAWER (RIGHT SIDE) */
+#drawer-chat {
+  right: 16px;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  transform: translateX(calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+#drawer-chat.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* MANDATES DRAWER (LEFT SIDE OR MODAL) */
+#drawer-mandates {
+  left: 16px;
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  transform: translateX(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+#drawer-mandates.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* FLOATING MODALS (RADIO, MACROS, CHARACTER) */
+.glass-modal {
+  position: fixed;
+  background: rgba(11, 12, 20, 0.92);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+  z-index: 46;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.glass-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1) translateY(0);
+}
+
+#modal-radio {
+  bottom: 50px;
+  right: 20px;
+  width: 360px;
+}
+
+#modal-macros {
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px) scale(0.95);
+  width: 480px;
+  max-width: calc(100vw - 40px);
+}
+
+#modal-macros.open {
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+#modal-character {
+  top: 65px;
+  right: 20px;
+  width: 320px;
+}
+
+/* ==============================================================================
+   👁️ ZEN COMPANION MODE (EVERYTHING COLLAPSED EXCEPT 3D CHARACTER)
+   ============================================================================== */
+body.zen-mode .top-nav {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.zen-mode .bottom-telemetry {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.zen-mode #drawer-chat.open {
+  transform: translateX(calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.zen-mode #drawer-mandates.open {
+  transform: translateX(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.zen-mode .glass-modal.open {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+}
+
+/* Floating Zen Restore Button */
+.zen-restore-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(13, 14, 23, 0.85);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  backdrop-filter: blur(12px);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  z-index: 60;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 15px rgba(168, 85, 247, 0.3);
+  transition: all 0.2s ease;
+}
+
+.zen-restore-btn:hover {
+  background: rgba(168, 85, 247, 0.4);
+  transform: scale(1.05);
+}
+
+body.zen-mode .zen-restore-btn {
+  display: flex;
+}
+
+/* ==============================================================================
+   UI WIDGETS & DETAILS (MANDATES GRID, CHAT, RADIO, BUTTONS)
+   ============================================================================== */
+.mandate-card {
+  background: rgba(18, 19, 32, 0.6);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mandate-card:hover {
+  background: rgba(30, 27, 54, 0.85);
+  border-color: rgba(168, 85, 247, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
+}
+
+.mode-btn {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
 .mode-btn.active-chill {
   background: linear-gradient(135deg, #9333ea, #db2777);
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(219, 39, 119, 0.4);
+  box-shadow: 0 0 12px rgba(219, 39, 119, 0.45);
 }
+
 .mode-btn.active-ninja {
   background: linear-gradient(135deg, #065f46, #059669);
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
 }
 
-/* CHAT MESSAGES */
-.chat-msg {
-  animation: fadeIn 0.2s ease-out forwards;
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.35);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.6);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* CODE BLOCK IN CHAT */
+/* CODE BLOCKS */
 pre {
-  background: #050608 !important;
+  background: #040508 !important;
   border: 1px solid rgba(168, 85, 247, 0.3);
   border-radius: 8px;
   padding: 10px;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  margin: 6px 0;
   overflow-x: auto;
   color: #10b981;
 }
@@ -108,81 +493,4 @@ pre {
 code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-}
-
-/* TAILWIND ESSENTIAL REPLACEMENTS FOR OFFLINE ROBUSTNESS */
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.flex-1 { flex: 1 1 0%; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.space-x-1 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.25rem; }
-.space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; }
-.space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; }
-.space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
-.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
-.space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
-.space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
-.space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-.grid { display: grid; }
-.gap-4 { gap: 1rem; }
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-4 { padding: 1rem; }
-.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-.px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
-.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-.py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
-.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-.py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.h-full { height: 100%; }
-.h-screen { height: 100vh; }
-.w-full { width: 100%; }
-.w-8 { width: 2rem; }
-.h-8 { height: 2rem; }
-.w-10 { width: 2.5rem; }
-.h-10 { height: 2.5rem; }
-.w-12 { width: 3rem; }
-.h-12 { height: 3rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-xl { border-radius: 0.75rem; }
-.rounded-2xl { border-radius: 1rem; }
-.rounded-full { border-radius: 9999px; }
-.border { border-width: 1px; border-style: solid; }
-.border-b { border-bottom-width: 1px; border-bottom-style: solid; }
-.border-t { border-top-width: 1px; border-top-style: solid; }
-.relative { position: relative; }
-.absolute { position: absolute; }
-.fixed { position: fixed; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.top-4 { top: 1rem; }
-.left-4 { left: 1rem; }
-.right-4 { right: 1rem; }
-.bottom-4 { bottom: 1rem; }
-.z-0 { z-index: 0; }
-.z-10 { z-index: 10; }
-.overflow-hidden { overflow: hidden; }
-.overflow-y-auto { overflow-y: auto; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cursor-pointer { cursor: pointer; }
-.font-mono { font-family: 'JetBrains Mono', monospace; }
-.font-bold { font-weight: 700; }
-.font-black { font-weight: 900; }
-.text-xs { font-size: 0.75rem; }
-.text-sm { font-size: 0.875rem; }
-.text-lg { font-size: 1.125rem; }
-.tracking-wider { letter-spacing: 0.05em; }
-.tracking-widest { letter-spacing: 0.1em; }
-.transition { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-.transition-all { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-
-@media (min-width: 1024px) {
-  .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .lg\:col-span-7 { grid-column: span 7 / span 7; }
-  .lg\:col-span-5 { grid-column: span 5 / span 5; }
 }

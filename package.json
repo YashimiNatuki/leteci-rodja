@@ -1,0 +1,27 @@
+{
+  "name": "leteci-rodja-pet-app",
+  "version": "5.0.0-GODMODE",
+  "description": "Leteći Rođa & AiGad — 3D Cyberpunk Floating Companion, Radio and AI Copilot with Dual Mindset",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "ai",
+    "companion",
+    "mascot",
+    "threejs",
+    "webgl",
+    "smoke",
+    "audio",
+    "ollama",
+    "aigad"
+  ],
+  "author": "Konglomerat Preduzeće & Yashimi Natuki",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

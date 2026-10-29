@@ -1,111 +1,136 @@
-# 🛸 LETEĆI ROĐA — 3D Cyberpunk Mascot, Radio & AI Copilot (v5.0)
+# 🛸 LETEĆI ROĐA & AIGAD — 3D Cyberpunk Companion & AI Copilot (v5.0-GODMODE)
 
 > **Autor:** Konglomerat Preduzeće™ & The Chief Architect (Yashimi Natuki)  
-> **Korisnik:** `yappozdder` (Ubuntu-24.04 WSL2)  
-> **Status:** SOVEREIGN / ZERO-TRUST / AIR-GAPPED LOOPBACK / 100% PRODUCTION READY
+> **Korisnik:** `yappozdder` (Ubuntu-24.04 WSL2) & Windows  
+> **Status:** SOVEREIGN / ZERO-TRUST / AIR-GAPPED LOOPBACK / 100% PRODUCTION READY  
+> **Hardware Link:** Android USB ADB Bridge (`FESCGYSKEEJ7Z9IV`)
 
 ---
 
 ## 🌟 O Projektu
 
-**Leteći Rođa** je autonomni 3D lebdeći asistent, maskota i hakerski kopilot inspirisan 2Pac Thug Life uličnom filozofijom i vrhunskom matematičko-softverskom arhitekturom.
+**Leteći Rođa & AiGad** je autonomni visoko-tehnološki **3D WebGL lebdeći asistent, maskota i hakerski kopilot** inspirisan 2Pac Thug Life uličnim autoritetom i nemilosrdnom matematičko-softverskom preciznošću Chief Architect v10.0 protokola.
 
-### Ključne Mogućnosti:
-1. **3D Voxel Avatar & Parallax:**
-   - 2.5D/3D Canvas Voxel render avatara: glava, 2Pac bandanna sa paisley tačkama, Matrix sunčane naočare sa odsjajem, orbitalni halo prsten koji rotira oko tela, i cyberpunk hoodie.
-   - Reaguje na pokrete miša sa 3D naginjanjem (parallax), može se slobodno vući i pomerati po ekranu.
-2. **Volumetric Smoke Particle Engine (Dim iz bonga / blunta):**
-   - Fizički particle generator koji emituje prstenove i oblake dima direktno sa usijanog vrha blunta.
-   - Pufće na zadato pitanje, a u ritmu muzike dim vibrira i pulsira sa basom!
-3. **Integrisani Boombox / MP3 Radio:**
-   - Ugrađen Web Audio API Frequency Analyser sa real-time spektralnim visualizerom.
-   - Učitane lokalne numere:
-     - `Hatori Hanzo.mp3`
-     - `Neznam Ništa.mp3`
-     - `dobrodosao i bye bye.mp3`
-     - `poLejt najt..never mind.mp3`
-     - Online Cyberpunk / Kafana lofi strimovi.
-4. **Dual Mindset Persona (Kafana Chill vs Ninja Shaolin Hack):**
-   - **Kafana Chill Mod:** Opulentan, opušten srpski ulični žargon (*"G", "rođo", "brate", "ludilo mednes", "esi mi dobar"*), priča o muzici, kulira u dimu.
-   - **Ninja Shaolin Hack Mod:** Hirurški precizan, striktan **Zero-TODO** mandat, kompletan produkcijski kod, Hoare logika $\{P\}\mathbf{C}\{Q\}$, Shannon entropija.
-   - Komandni makroi: `/G-GODMODE`, `/G-AUDIT`, `/G-HEX-EXEC`, `/G-MATH-MODEL`, `/G-NUKE`.
-5. **Direktna Ollama Streaming Veza i Gemini Fallback:**
-   - Povezan na lokalni Ollama server (`http://127.0.0.1:11434`) sa modelima `qwen2.5-coder:7b`, `qwen3:8b`, `llama3`.
-   - Real-time token streaming preko SSE protokola.
-   - **Automatski Fallback na Google Gemini API:** Ukoliko je Ollama server ugašen, server automatski preusmerava zahteve na Gemini API (koristeći `GEMINI_API_KEY` promenljivu okruženja) sa simuliranim glatkim streamingom.
-   - **Offline Godmode Engine:** Ukoliko nema ni interneta ni Ollame, ugrađeni deterministički Thug Life / Shaolin agent odmah preuzima razgovor.
-6. **Interaktivni 3D AI Avatar & Perlin Noise:**
-   - Realistično lebdenje pogonjeno 1D Perlin noise algoritmom umesto običnog sinusa.
-   - Chat detekcija reči u realnom vremenu:
-     - *"ninja"*, *"hack"*, *"code"* -> momentalni prelazak u Shaolin mod sa zelenim neonom i bržim lebdenjem.
-     - *"chill"*, *"relax"*, *"smoke"* -> opušteni Kafana Chill ljubičasti mod.
-     - *"boom"*, *"bass"*, *"beat"* -> trenutno pojačanje halo prstena i bas vibracija (Beat-boost).
+Projekat je potpuno transformisan iz običnih 2D canvas skica u **pravi Three.js WebGL 3D filmski svet** sa rigovanim Mixamo modelima, artikulisanom pokretnom vilicom pri govoru, volumetrijskim dimom i žarom, 6 inženjerskih mandata i Zen modom!
 
 ---
 
-## 🚀 Pokretanje Sistema
+## 🚀 Ključne Mogućnosti
 
-### Konfiguracija (opciono):
-```bash
-# Za Gemini rezervni fallback:
-export GEMINI_API_KEY="tvoj_gemini_api_kljuc"
+### 1. 🛸 Pravi 3D WebGL Filmski Lik & Artikulacija (Zero 95 Retro)
+- **Mixamo Rigged 3D GLB Modeli:**
+  - **🟣 AiGad 3D (`aigad-rigged.glb`):** SkinnedMesh kostur sa ljubičastom kapuljačom, atlas lobanjom i animiranim kostima (Head, Spine2, LeftArm, RightArm, Jaw).
+  - **🔴 ChatBrat 3D (`chatbrat-rigged.glb`):** Crveni hoodie, matriks naočare i kibernetički osmeh.
+  - **🛸 Leteći Rođa Noir (`leteci-noir.webp`):** Originalna visoko-rezoluciona Noir ilustracija + procedurani mlazni raketni rig sa plamenim konusima.
+  - **💠 AiRodja Holo (`airodja`):** Holografsko kristalno ikosaedarsko jezgro sa rotirajućom kvantnom žičanom rešetkom i orbitalnim prstenovima.
+- **Artikulisana vilica i sinhronizacija govora:** Kada Ollama ili lokalni agent strimuju tokene odgovora, lik prelazi u stanje `speaking` — vilica lobanje se fizički otvara i zatvara u ritmu reči ($\max(0, \sin(14t)) \times 0.28$), iskre ubrzavaju rotaciju, a dim iz blunta kulja intenzivnije!
+- **Slobodno prevlačenje po celom ekranu:** Lik lebdi pomoću harmonijske jednačine $y = A_1 \sin(\omega_1 t) + A_2 \cos(\omega_2 t)$, a korisnik ga može zgrabiti mišem ili prstom na dodirnom ekranu i premestiti bilo gde uz glatku inerciju i prigušenje.
+- **3D Parallax Tilt:** Glava i telo lika prate kursor ili dodirnu tačku u 3D perspektivi.
 
-# Za prilagođavanje Ollama hosta ili modela:
-export OLLAMA_API_URL="http://127.0.0.1:11434"
-export OLLAMA_MODEL="qwen2.5-coder:7b"
+---
+
+### 2. 👁️ Zen Mod (Samo 3D Lik u Dimu)
+- Jednim klikom na `👁️ ZEN MOD` (ili prečicom na tastaturi `Z` / `Esc` / dvoklikom) — **svi meniji, zaglavlja, fioke i paneli se povlače sa ekrana**!
+- Na celom ekranu ostaje **SAMO 3D lik koji lebdi u oblaku volumetrijskog dima i svetlećeg žara**, sa minimalističkom plutajućom kapsulom (pill dock) neposredno ispod njega.
+
+---
+
+### 3. ⚡ 6 AiBrat Mandata & Skillova
+Direktno ugrađeni mandati Chief Architect platforme:
+1. **🏛️ Arhitektura:** Granice modula, definicija ugovora, analiza rizika i plan provere sa Hoare invarijantama $\{P\}\mathbf{C}\{Q\}$.
+2. **🥷 Code Ninja:** Generisanje C / Rust / Node.js produkcionog koda bez ijednog `// TODO` komentara, $O(1)$ hes lookup i libuv optimizacija.
+3. **📚 Istraži Yottes:** BM25 pretraga beleški, normalizacija dijakritika i semantička sinteza znanja.
+4. **📐 Math Core:** Shannonova informaciona entropija $H(X)$, deterministička aritmetika, simbolički izvodi i normalne jednačine.
+5. **🔬 Dijagnostika:** Nadzor portova (15200, 18503, 18501), provera USB uređaja `FESCGYSKEEJ7Z9IV`, memorija i procesi.
+6. **⚡ Cannon:** Inženjerski tok visokog pritiska: ugovor modula + bare-metal implementacija + automatizovani testovi provere.
+
+---
+
+### 4. 🥷 G-Macros Brza Paleta
+- `/G-GODMODE`: Podizanje autorizacije na `0xFF` i Super Cow Powers.
+- `/G-AUDIT`: Brutalni arhitekturni izveštaj o bezbednosti memorije, konkurentnosti i Shannon entropiji.
+- `/G-HEX-EXEC`: Dinamička dekompresija i izvršavanje heksadecimalnog koda.
+- `/G-MATH-MODEL`: Formalni matematički model transformacija i formalna verifikacija.
+- `/G-GHOST`: Stealth air-gapped izolacija na `127.0.0.1` sa nula curenja telemetrije.
+- `/G-AIGAD`, `/G-AIBRAT`, `/G-YAPPINATOR`, `/G-YSHELL`.
+
+---
+
+### 5. 💨 Volumetrijski Dim & Žar sa Zvučnom Reaktivnošću
+- Celokupni ekran pokriva simulacija čestica dima koja dinamički prati koordinate gde se lik nalazi.
+- Bas sa Boombox radija izaziva turbulenciju i pulsiranje oblaka dima.
+- Pored dima, sa žara blunta se otkidaju svetleće iskre (embers) koje lebde uvis.
+
+---
+
+### 6. 📱 Fizički Android USB Bridge
+- Povezan Android telefon (`FESCGYSKEEJ7Z9IV`).
+- ADB reverse portovi:
+  - `tcp:15200` ⇄ WebGL 3D Companion interfejs
+  - `tcp:18503` ⇄ Rođa Native Cockpit
+  - `tcp:18501` ⇄ AIChatBrat / YappinaTor
+- Na telefonu u browseru posetiti `http://localhost:15200` za rad sa likom uz punu podršku za touch-drag.
+
+---
+
+### 7. 🤖 Ollama Streaming & Fallback
+- Povezivanje na lokalnu Ollamu (`http://127.0.0.1:11434`) sa podrškom za `qwen2.5-coder:7b`, `llama3`, itd.
+- Token-po-token strimovanje preko SSE.
+- Ako Ollama nije dostupna, automatski se aktivira pametni deterministički offline copilot engine.
+
+---
+
+## 🛠️ Pokretanje Aplikacije
+
+### 1. Pokretanje na Windows mašini:
+```powershell
+cd staging_rodja
+npm start
 ```
+Otvoriti: **`http://localhost:15200`**
 
-### 1. Pokretanje pod nalogom `yappozdder` u WSL:
-
+### 2. Pokretanje pod WSL2 (`yappozdder`):
 ```bash
-# Prelazak na nalog yappozdder
 su - yappozdder
-
-# Ulazak u folder i pokretanje
 cd ~/projects/leteci-rodja
 npm start
 ```
 
-Aplikacija se podiže na portu **`http://localhost:15200`**.
-
-### 2. Pokretanje iz Windows PowerShell-a:
-
+### 3. Povezivanje telefona preko ADB-a:
 ```powershell
-wsl -d Ubuntu-24.04 -u yappozdder bash -c "cd ~/projects/leteci-rodja && npm start"
+adb reverse tcp:15200 tcp:15200
+adb reverse tcp:18503 tcp:18503
+adb reverse tcp:18501 tcp:18501
 ```
-
-Ili otvorite `http://localhost:15200` u vašem browseru!
+Zatim na telefonu u Chrome-u posetiti: **`http://localhost:15200`**.
 
 ---
 
-## 📂 Struktura Fajlova
+## 📂 Struktura Projekta
 
 ```text
-leteci-rodja/
-├── package.json               # Konfiguracija i zavisnosti (express, cors)
+staging_rodja/
+├── package.json               # Konfiguracija i zavisnosti
 ├── server.js                  # Express backend & Ollama streaming proxy
-├── README.md                  # Kompletan runbook i tehnička specifikacija
+├── README.md                  # Dokumentacija i arhitektura
 └── public/
-    ├── index.html             # Master HUD, Canvas, radio i chat interfejs
-    ├── manifest.json          # PWA manifest
+    ├── index.html             # Master HTML sa 3D scenom, dockom i fiokama
+    ├── manifest.json          # PWA Manifest
     ├── css/
-    │   └── style.css          # Cyberpunk tema, scanlines, neonski efekti
+    │   └── style.css          # Glassmorphism, neonski glow, Zen mod
+    ├── assets/
+    │   ├── characters/
+    │   │   ├── aigad-rigged.glb       # Mixamo Rigged 3D SkinnedMesh (AiGad)
+    │   │   └── chatbrat-rigged.glb    # Mixamo Rigged 3D SkinnedMesh (ChatBrat)
+    │   └── portraits/
+    │       └── leteci-noir.webp       # Noir filmska ilustracija
     ├── js/
-    │   ├── smoke.js           # Volumetrijski endžin za čestice dima
-    │   ├── avatar3d.js        # 3D Voxel avatar, lebdenje, halo prsten, fizika
+    │   ├── app.js             # Master orkestrator, 60fps loop, drag & speech sync
+    │   ├── companion-stage.mjs# Three.js WebGL runtime & GLTF/procedural loader
+    │   ├── avatar-rig.mjs     # Proceduralne 3D kosti, vilica, halo i iskre
+    │   ├── cinematic-policy.mjs# Politika prikaza i optimizacija budžeta
+    │   ├── smoke.js           # Volumetrijski dim i svetleće iskre
     │   ├── audio-player.js    # Boombox plejer i spektralni vizuelizator
-    │   ├── mindset.js         # Dualna persona (Chill vs Ninja) i makroi
-    │   └── app.js             # 60FPS orkestracija i strimovanje poruka
-    └── audio/
-        ├── Hatori Hanzo.mp3
-        ├── Neznam Ništa.mp3
-        ├── dobrodosao i bye bye.mp3
-        └── poLejt najt..never mind.mp3
+    │   ├── mindset.js         # 6 AiBrat mandata i G-makroi
+    │   └── vendor/            # Three.js moduli i loaderi bez eksternog interneta
 ```
-
----
-
-## 🔒 Autorizacija i Status
-* **Chief Architect:** Yashimi Natuki
-* **Entity:** Konglomerat Preduzeće™
-* **Hoare Verification:** $\{P\} \mathbf{C} \{Q\}$ VERIFIED

@@ -2,281 +2,473 @@
 <html lang="sr" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leteći Rođa // Konglomerat Preduzeće™ & The Chief Architect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Leteći Rođa & AiGad // Konglomerat Preduzeće™ & The Chief Architect</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d0e15">
+  <meta name="theme-color" content="#07080f">
 </head>
-<body class="bg-[#090a0f] text-gray-100 font-sans antialiased overflow-x-hidden select-none">
-  
-  <!-- BACKGROUND CYBER GRID & GLOW -->
-  <div class="fixed inset-0 pointer-events-none z-0">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,40,200,0.25),rgba(255,255,255,0))]"></div>
+<body>
+
+  <!-- 1. FULLSCREEN BACKGROUND GLOW & VOLUMETRIC SMOKE CANVAS -->
+  <div class="cyber-bg-glow">
     <div class="grid-overlay"></div>
   </div>
+  <canvas id="smoke-canvas"></canvas>
 
-  <div class="relative z-10 flex flex-col h-screen max-h-screen">
-    
-    <!-- TOP STATUS BAR -->
-    <header class="flex items-center justify-between px-6 py-3 border-b border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md">
-      <div class="flex items-center space-x-3">
-        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#10b981]"></div>
-        <div class="flex items-baseline space-x-2">
-          <span class="font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 text-lg">
-            K👁️NGLOMERAT // LETEĆI ROĐA
-          </span>
-          <span class="text-xs px-2 py-0.5 rounded border border-purple-500/30 bg-purple-950/40 text-purple-300 font-mono">
-            v5.0-GODMODE
-          </span>
-        </div>
+  <!-- 2. TOP STATUS BAR (COLLAPSIBLE IN ZEN MODE) -->
+  <header class="top-nav">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 10px #10b981;animation:pulse 2s infinite;"></div>
+      <div style="display:flex;align-items:baseline;gap:8px;">
+        <span style="font-weight:900;letter-spacing:0.08em;font-size:15px;background:linear-gradient(to right, #c084fc, #f472b6, #fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+          K👁️NGLOMERAT // LETEĆI ROĐA & AIGAD
+        </span>
+        <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid rgba(168,85,247,0.3);background:rgba(59,7,100,0.4);color:#d8b4fe;font-weight:700;">
+          v5.0-GODMODE
+        </span>
       </div>
+    </div>
 
-      <!-- CENTER TELEMETRY & CHIEF ARCHITECT BADGE -->
-      <div class="hidden md:flex items-center space-x-4 text-xs font-mono text-gray-400">
-        <div class="flex items-center space-x-1">
-          <span class="text-purple-400">ARCHITECT:</span>
-          <span class="text-gray-200 font-bold">Yashimi Natuki</span>
-        </div>
-        <span class="text-gray-700">|</span>
-        <div class="flex items-center space-x-1">
-          <span class="text-purple-400">RUNTIME:</span>
-          <span class="text-emerald-400" id="wsl-badge">WSL2 UBUNTU</span>
-        </div>
-        <span class="text-gray-700">|</span>
-        <div class="flex items-center space-x-1">
-          <span class="text-purple-400">OLLAMA:</span>
-          <span class="text-cyan-400 font-bold" id="ollama-badge">CONNECTING...</span>
-        </div>
+    <!-- CENTER TELEMETRY & CHIEF ARCHITECT BADGES -->
+    <div style="display:flex;align-items:center;gap:16px;font-size:11px;color:#94a3b8;" class="telemetry-center">
+      <div>
+        <span style="color:#c084fc;">ARCHITECT:</span>
+        <span style="color:#f1f5f9;font-weight:700;">Yashimi Natuki</span>
       </div>
+      <span style="color:#475569;">|</span>
+      <div>
+        <span style="color:#c084fc;">RUNTIME:</span>
+        <span style="color:#34d399;font-weight:700;" id="wsl-badge">WSL2 UBUNTU</span>
+      </div>
+      <span style="color:#475569;">|</span>
+      <div>
+        <span style="color:#c084fc;">OLLAMA:</span>
+        <span style="color:#22d3ee;font-weight:700;" id="ollama-badge">DISCOVERING...</span>
+      </div>
+      <span style="color:#475569;">|</span>
+      <div id="btn-phone-status" style="cursor:pointer;" title="Klikni za detalje USB ADB telefona">
+        <span style="color:#c084fc;">USB PHONE:</span>
+        <span style="color:#a7f3d0;font-weight:700;">📱 FESCGYSKEEJ7Z9IV (15200)</span>
+      </div>
+    </div>
 
-      <!-- DUAL MODE SWITCHER (KAFANA CHILL vs NINJA HACK) -->
-      <div class="flex items-center space-x-2 bg-black/40 p-1 rounded-xl border border-purple-500/30">
-        <button id="btn-mode-chill" class="mode-btn active px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider transition-all flex items-center space-x-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30">
+    <!-- MODE SWITCHER & ZEN TRIGGER -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);padding:3px;border-radius:10px;border:1px solid rgba(168,85,247,0.3);">
+        <button id="btn-mode-chill" class="mode-btn active-chill">
           <span>☕</span>
           <span>KAFANA CHILL</span>
         </button>
-        <button id="btn-mode-ninja" class="mode-btn px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider transition-all flex items-center space-x-1.5 text-gray-400 hover:text-emerald-400 hover:bg-emerald-950/30">
+        <button id="btn-mode-ninja" class="mode-btn" style="background:transparent;color:#94a3b8;">
           <span>🥷</span>
           <span>NINJA SHAOLIN</span>
         </button>
       </div>
-    </header>
 
-    <!-- WORKSPACE SPLIT (CANVAS 3D PET vs CYBER DECK & RADIO) -->
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
-      
-      <!-- LEFT / CENTER: 3D VOXEL AVATAR & VOLUMETRIC SMOKE ENGINE -->
-      <div class="lg:col-span-7 flex flex-col relative rounded-2xl border border-purple-900/40 bg-[#0d0e17]/60 backdrop-blur-md overflow-hidden shadow-2xl shadow-purple-950/20">
-        
-        <!-- CANVAS CONTAINER -->
-        <div class="relative flex-1 w-full h-full min-h-[350px]">
-          <canvas id="rodja-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
-          
-          <!-- OVERLAY FLOATING STATS -->
-          <div class="absolute top-4 left-4 flex flex-col space-y-1.5 pointer-events-none font-mono text-[11px]">
-            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-purple-300 backdrop-blur flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
-              <span id="flight-state-text">STATUS: LEBDI U ORBITI</span>
-            </div>
-            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-gray-300 backdrop-blur">
-              DIM ENGINE: <span class="text-emerald-400" id="smoke-particles-count">120 čestica</span>
-            </div>
-            <div class="px-2.5 py-1 rounded-md bg-black/60 border border-purple-500/20 text-amber-300 backdrop-blur">
-              HOVER FREQ: <span id="hover-physics-val">y = sin(t)*15px</span>
-            </div>
-          </div>
+      <button id="btn-zen-mode" class="mode-btn" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#e2e8f0;" title="Sakrij sve panele i ostavi samo 3D lika u dimu">
+        <span>👁️</span>
+        <span>ZEN MOD</span>
+      </button>
+    </div>
+  </header>
 
-          <!-- FLOATING AVATAR INTERACTIVE CONTROLS -->
-          <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-auto">
-            <div class="flex items-center space-x-2">
-              <button id="btn-puff-smoke" class="px-3 py-1.5 bg-purple-950/70 hover:bg-purple-800/80 border border-purple-500/40 text-purple-200 text-xs font-mono font-bold rounded-lg shadow transition flex items-center space-x-1.5">
-                <span>💨</span>
-                <span>DUNI DIM IZ BLUNTA</span>
-              </button>
-              <button id="btn-reset-view" class="px-3 py-1.5 bg-gray-900/70 hover:bg-gray-800 border border-gray-700 text-gray-300 text-xs font-mono rounded-lg transition">
-                CENTRIRAJ
-              </button>
-            </div>
+  <!-- 3. THE FLOATING 3D COMPANION (CENTRAL HERO WIDGET) -->
+  <div id="floating-companion">
+    <!-- Ambient Holographic Glow Aura -->
+    <div class="companion-aura"></div>
 
-            <!-- SMOKE DENSITY SLIDER -->
-            <div class="flex items-center space-x-2 bg-black/70 px-3 py-1.5 rounded-lg border border-purple-500/20 text-xs font-mono">
-              <span class="text-purple-400">GUSTINA DIMA:</span>
-              <input type="range" id="smoke-density" min="20" max="250" value="120" class="w-20 accent-purple-500 cursor-pointer">
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Status Tooltip / Character Badge -->
+    <div class="companion-badge" id="companion-badge">
+      <span style="width:6px;height:6px;border-radius:50%;background:#ec4899;box-shadow:0 0 6px #ec4899;"></span>
+      <span id="companion-agent-name">AiGad 3D</span>
+      <span style="color:#94a3b8;">·</span>
+      <span id="companion-state-label" style="color:#a855f7;">LEBDI U ORBITI</span>
+    </div>
 
-      <!-- RIGHT: INTEGRATED BOOMBOX RADIO & ROĐA CHAT COCKPIT -->
-      <div class="lg:col-span-5 flex flex-col space-y-4 h-full overflow-hidden">
-        
-        <!-- 1. BOOMBOX RADIO & AUDIO WAVEFORM DECK -->
-        <div class="p-4 rounded-2xl border border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md shadow-xl flex flex-col space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="text-lg">📻</span>
-              <span class="font-mono font-black text-xs tracking-wider text-pink-400">ROĐA BOOMBOX // THUG RADIO</span>
-            </div>
-            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-pink-950/40 border border-pink-500/30 text-pink-300" id="audio-status-badge">
-              PAUSED
-            </span>
-          </div>
+    <!-- Three.js WebGL Stage Container -->
+    <div class="companion-stage-box" id="companion-stage-box">
+      <!-- Container where Companion3DStage mounts WebGL canvas -->
+      <div id="companion-stage" style="width:100%;height:100%;"></div>
+    </div>
 
-          <!-- AUDIO SPECTRUM VISUALIZER CANVAS -->
-          <div class="w-full h-12 bg-black/60 rounded-xl border border-purple-900/40 overflow-hidden relative">
-            <canvas id="visualizer-canvas" class="w-full h-full block"></canvas>
-            <div class="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
-              <span class="text-[10px] font-mono text-purple-300/80 truncate max-w-[200px]" id="current-track-name">
-                Izaberi pesmu za gas...
-              </span>
-              <span class="text-[10px] font-mono text-pink-400/90" id="audio-time-label">00:00</span>
-            </div>
-          </div>
-
-          <!-- PLAYBACK CONTROLS -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <button id="btn-prev-track" class="w-8 h-8 rounded-lg bg-gray-900/80 hover:bg-purple-900/50 border border-purple-500/20 text-gray-300 flex items-center justify-center transition">
-                ⏮
-              </button>
-              <button id="btn-play-pause" class="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold flex items-center justify-center shadow-lg shadow-pink-600/30 transition">
-                ▶
-              </button>
-              <button id="btn-next-track" class="w-8 h-8 rounded-lg bg-gray-900/80 hover:bg-purple-900/50 border border-purple-500/20 text-gray-300 flex items-center justify-center transition">
-                ⏭
-              </button>
-            </div>
-
-            <!-- PLAYLIST SELECTOR -->
-            <select id="track-select" class="flex-1 mx-2 bg-black/80 border border-purple-500/30 text-purple-200 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pink-500">
-              <option value="">Učitavanje pesama...</option>
-            </select>
-
-            <!-- VOLUME SLIDER -->
-            <div class="flex items-center space-x-1 text-xs text-gray-400">
-              <span>🔊</span>
-              <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7" class="w-16 accent-pink-500 cursor-pointer">
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. ROĐA MINDSET CHAT & OLLAMA COPILOT DECK -->
-        <div class="flex-1 flex flex-col p-4 rounded-2xl border border-purple-900/40 bg-[#0d0e17]/80 backdrop-blur-md shadow-xl overflow-hidden">
-          
-          <!-- CHAT HEADER & MODEL SELECTION -->
-          <div class="flex items-center justify-between pb-3 border-b border-purple-900/30">
-            <div class="flex items-center space-x-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div>
-              <span class="font-mono text-xs font-bold text-gray-300">ROĐA COPILOT // STREAMING</span>
-            </div>
-            <select id="model-select" class="bg-black/60 border border-purple-500/30 text-[11px] font-mono text-gray-300 rounded px-2 py-0.5 focus:outline-none">
-              <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (Default)</option>
-              <option value="qwen3:8b">qwen3:8b</option>
-              <option value="llama3:latest">llama3:latest</option>
-            </select>
-          </div>
-
-          <!-- MACRO QUICK BUTTONS -->
-          <div class="flex flex-wrap gap-1.5 py-2 border-b border-purple-900/20">
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-GODMODE">
-              /G-GODMODE
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-AUDIT">
-              /G-AUDIT
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-HEX-EXEC 4b6f6e676c6f6d65726174">
-              /G-HEX-EXEC
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-MATH-MODEL">
-              /G-MATH-MODEL
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-GHOST">
-              /G-GHOST
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-AIGAD">
-              🐮 AiGad
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-AIBRAT">
-              🤖 AiBrat
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-YAPPINATOR">
-              🌐 YappinaTor
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="/G-YSHELL (137 * 29) + 17">
-              💻 Y$hell Calc
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/40 hover:bg-amber-800/60 border border-amber-500/30 text-amber-300 font-bold transition" data-macro="/G-CANNON Razradi ultra mega inzenjerski tok">
-              ⚡ Cannon
-            </button>
-            <button class="macro-btn text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950/40 hover:bg-purple-800/60 border border-purple-500/30 text-purple-300 transition" data-macro="Esi mi dobar rođo, daj nam neku mudrost!">
-              ☕ Kafana Mudrost
-            </button>
-          </div>
-
-          <!-- CHAT MESSAGE LOG -->
-          <div id="chat-log" class="flex-1 overflow-y-auto space-y-3 py-3 pr-1 text-xs font-mono scrollbar-thin">
-            <!-- Initial welcome message from Rođa -->
-            <div class="chat-msg rodja-msg p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-gray-200">
-              <div class="flex items-center space-x-1.5 text-pink-400 font-bold mb-1">
-                <span>🛸</span>
-                <span>LETEĆI ROĐA</span>
-                <span class="text-[10px] text-gray-500">(KAFANA CHILL)</span>
-              </div>
-              <p class="leading-relaxed">
-                Esi mi dobar, rođo! G je online i lebdi u dimu sa bluntom. 
-                Sistem ti je zakucan pod novim nalogom <b>yappozdder</b> na Ubuntu-24.04, 
-                svi provereni projekti su spakovani, a radio roka. Šta kidamo danas — 
-                puštamo li Hatori Hanzo ili palimo Ninja Shaolin mod za hirurški precizan kod?
-              </p>
-            </div>
-          </div>
-
-          <!-- COMPOSER INPUT FORM -->
-          <form id="chat-form" class="mt-2 flex items-center space-x-2">
-            <input 
-              type="text" 
-              id="prompt-input" 
-              placeholder="Pitaj Rođu bilo šta ili unesi komandu..." 
-              autocomplete="off"
-              class="flex-1 bg-black/70 border border-purple-500/30 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 shadow-inner">
-            <button 
-              type="submit" 
-              id="btn-send"
-              class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg shadow-purple-600/30 transition flex items-center space-x-1">
-              <span>ŠALJI</span>
-              <span>⚡</span>
-            </button>
-          </form>
-
-        </div>
-
-      </div>
-
-    </main>
-
-    <!-- FOOTER TELEMETRY BAR -->
-    <footer class="px-6 py-2 border-t border-purple-900/30 bg-[#0d0e17]/90 text-[11px] font-mono text-gray-500 flex items-center justify-between">
-      <div>
-        HOARE MATRIX: <span class="text-purple-400">{P} C {Q} VERIFIED</span> | ENTROPY: <span class="text-emerald-400">H(X) OPTIMAL</span>
-      </div>
-      <div>
-        KONGLEOMERAT PREDUZEĆE™ &copy; 2026 // ZERO-LEAKAGE PRODUCTION ARCHITECTURE
-      </div>
-    </footer>
-
+    <!-- FLOATING QUICK ACTION PILL DOCK (DOCKED TO CHARACTER) -->
+    <div class="companion-pill-dock" id="companion-dock">
+      <button class="dock-btn" id="dock-btn-chat" title="Otvori Chat Copilot">
+        <span>💬</span>
+        <span class="dock-tooltip">Chat Copilot</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-mandates" title="6 AiBrat Mandata">
+        <span>⚡</span>
+        <span class="dock-tooltip">6 Mandata</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-macros" title="G-Macros Paleta">
+        <span>🥷</span>
+        <span class="dock-tooltip">G-Macros</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-radio" title="Boombox Radio">
+        <span>📻</span>
+        <span class="dock-tooltip">Boombox Radio</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-character" title="Izbor Lika & Prikaza">
+        <span>🎭</span>
+        <span class="dock-tooltip">Izaberi Lika</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-puff" title="Duni dim iz blunta">
+        <span>💨</span>
+        <span class="dock-tooltip">Duni Dim</span>
+      </button>
+      <button class="dock-btn" id="dock-btn-zen" title="Ukloni sve osim lika">
+        <span>👁️</span>
+        <span class="dock-tooltip">Samo Lik</span>
+      </button>
+    </div>
   </div>
 
-  <!-- AUDIO ELEMENT FOR PLAYBACK -->
+  <!-- 4. SLIDE-OUT CHAT COPILOT DRAWER (RIGHT) -->
+  <aside class="glass-drawer" id="drawer-chat">
+    <!-- Header -->
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">💬</span>
+        <span style="font-weight:800;font-size:13px;color:#f1f5f9;letter-spacing:0.04em;">ROĐA COPILOT // OLLAMA STREAM</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <select id="model-select" style="background:rgba(0,0,0,0.6);border:1px solid rgba(168,85,247,0.3);color:#e2e8f0;font-size:11px;padding:3px 8px;border-radius:6px;outline:none;">
+          <option value="qwen2.5-coder:7b">qwen2.5-coder:7b</option>
+          <option value="qwen3:8b">qwen3:8b</option>
+          <option value="llama3:latest">llama3:latest</option>
+        </select>
+        <button id="btn-close-chat" style="background:transparent;border:none;color:#94a3b8;font-size:18px;cursor:pointer;padding:2px 6px;">✕</button>
+      </div>
+    </div>
+
+    <!-- Quick Macros Strip inside Chat -->
+    <div style="padding:8px 14px;border-bottom:1px solid rgba(168,85,247,0.15);display:flex;flex-wrap:wrap;gap:6px;background:rgba(0,0,0,0.25);">
+      <button class="macro-quick-btn" data-macro="/G-GODMODE" style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;cursor:pointer;">/G-GODMODE</button>
+      <button class="macro-quick-btn" data-macro="/G-AUDIT" style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;cursor:pointer;">/G-AUDIT</button>
+      <button class="macro-quick-btn" data-macro="/G-MATH-MODEL" style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;cursor:pointer;">/G-MATH-MODEL</button>
+      <button class="macro-quick-btn" data-macro="/G-CANNON Razradi ultra mega inzenjerski tok" style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;cursor:pointer;font-weight:700;">⚡ Cannon</button>
+      <button class="macro-quick-btn" data-macro="Esi mi dobar rođo, daj nam neku mudrost!" style="font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f472b6;cursor:pointer;">☕ Kafana</button>
+    </div>
+
+    <!-- Message Stream Log -->
+    <div id="chat-log" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;font-size:12px;">
+      <!-- Welcome message -->
+      <div style="background:rgba(59,7,100,0.35);border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:12px;color:#e2e8f0;">
+        <div style="display:flex;align-items:center;gap:6px;color:#f472b6;font-weight:700;margin-bottom:6px;">
+          <span>🛸</span>
+          <span>LETEĆI ROĐA & AIGAD</span>
+          <span style="font-size:10px;color:#94a3b8;">(ONLINE U DIMU)</span>
+        </div>
+        <p style="line-height:1.6;margin:0;">
+          Esi mi dobar, rođo! G i AiGad su u full 3D WebGL orbiti, dim kulja oko nas, 
+          a radio bije. Spakovao sam ti sve mandate, G-makroe i direktnu vezu sa Ollama modelom.
+          Lik ti je pokretan po celom ekranu — zgrabi ga i prevuci gde god hoćeš. 
+          Šta kidamo danas?
+        </p>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="chat-form" style="padding:12px;border-top:1px solid rgba(168,85,247,0.25);background:rgba(7,8,15,0.7);display:flex;gap:8px;">
+      <input 
+        type="text" 
+        id="prompt-input" 
+        placeholder="Pitaj Rođu bilo šta ili unesi komandu..." 
+        autocomplete="off"
+        style="flex:1;background:rgba(0,0,0,0.6);border:1px solid rgba(168,85,247,0.35);border-radius:10px;padding:10px 14px;color:#ffffff;font-size:12px;outline:none;">
+      <button 
+        type="submit" 
+        id="btn-send"
+        style="background:linear-gradient(135deg, #9333ea, #db2777);border:none;border-radius:10px;padding:0 18px;color:#ffffff;font-weight:800;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(219,39,119,0.4);">
+        <span>ŠALJI</span>
+        <span>⚡</span>
+      </button>
+    </form>
+  </aside>
+
+  <!-- 5. SLIDE-OUT 6 AIBRAT MANDATES DRAWER (LEFT) -->
+  <aside class="glass-drawer" id="drawer-mandates">
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">⚡</span>
+        <span style="font-weight:800;font-size:13px;color:#f1f5f9;letter-spacing:0.04em;">6 AIBRAT MANDATA & SKILLOVA</span>
+      </div>
+      <button id="btn-close-mandates" style="background:transparent;border:none;color:#94a3b8;font-size:18px;cursor:pointer;padding:2px 6px;">✕</button>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="mandate-card" data-mandate="arhitektura">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#c084fc;">
+            <span>🏛️</span>
+            <span>Arhitektura</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(168,85,247,0.2);color:#d8b4fe;">SISTEMSKI DIZAJN</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          Granice modula, definicija ugovora, analiza rizika i formalna verifikacija sa Hoare invarijantama {P} C {Q}.
+        </p>
+      </div>
+
+      <div class="mandate-card" data-mandate="code_ninja">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#34d399;">
+            <span>🥷</span>
+            <span>Code Ninja</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(16,185,129,0.2);color:#6ee7b7;">BARE-METAL HIRURGIJA</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          Generisanje C / Rust / Node.js koda bez ijednog // TODO komentara, O(1) hes lookup i libuv optimizacija.
+        </p>
+      </div>
+
+      <div class="mandate-card" data-mandate="istrazi_yottes">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#38bdf8;">
+            <span>📚</span>
+            <span>Istraži Yottes</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(56,189,248,0.2);color:#7dd3fc;">BM25 SEARCH</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          BM25 pretraga beleški, normalizacija dijakritika i semantička sinteza znanja iz lokalne baze znanja.
+        </p>
+      </div>
+
+      <div class="mandate-card" data-mandate="math_core">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#fbbf24;">
+            <span>📐</span>
+            <span>Math Core</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(245,158,11,0.2);color:#fde68a;">SHANNON ENTROPY</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          Shannonova informaciona entropija H(X), deterministička aritmetika, simbolički izvodi i normalne jednačine.
+        </p>
+      </div>
+
+      <div class="mandate-card" data-mandate="dijagnostika">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#f472b6;">
+            <span>🔬</span>
+            <span>Dijagnostika</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(236,72,153,0.2);color:#fbcfe8;">RADAR & TELEMETRIJA</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          Nadzor portova (15200, 18503, 18501), provera USB uređaja FESCGYSKEEJ7Z9IV, memorija i procesi.
+        </p>
+      </div>
+
+      <div class="mandate-card" data-mandate="cannon">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:800;color:#e879f9;">
+            <span>⚡</span>
+            <span>⚡ Cannon Mega-Tok</span>
+          </div>
+          <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(232,121,249,0.2);color:#f5d0fe;">HIGH-GRAVITAS</span>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;line-height:1.5;margin:0;">
+          Inženjerski tok visokog pritiska: ugovor modula + bare-metal implementacija + automatizovani testovi provere.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 6. BOOMBOX RADIO MODAL -->
+  <div class="glass-modal" id="modal-radio">
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">📻</span>
+        <span style="font-weight:800;font-size:12px;color:#ec4899;">ROĐA BOOMBOX // THUG RADIO</span>
+      </div>
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(236,72,153,0.2);color:#f472b6;" id="audio-status-badge">PAUSED</span>
+    </div>
+
+    <div style="padding:14px;display:flex;flex-direction:column;gap:12px;">
+      <!-- Audio Spectrum Visualizer -->
+      <div style="height:48px;background:rgba(0,0,0,0.6);border-radius:10px;border:1px solid rgba(168,85,247,0.3);overflow:hidden;position:relative;">
+        <canvas id="visualizer-canvas" style="width:100%;height:100%;display:block;"></canvas>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;pointer-events:none;">
+          <span style="font-size:10px;color:rgba(216,180,254,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;" id="current-track-name">
+            Izaberi pesmu za gas...
+          </span>
+          <span style="font-size:10px;color:#f472b6;" id="audio-time-label">00:00</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button id="btn-prev-track" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(168,85,247,0.2);color:#cbd5e1;cursor:pointer;">⏮</button>
+          <button id="btn-play-pause" style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg, #ec4899, #a855f7);border:none;color:#ffffff;font-size:14px;cursor:pointer;box-shadow:0 0 12px rgba(236,72,153,0.5);">▶</button>
+          <button id="btn-next-track" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(168,85,247,0.2);color:#cbd5e1;cursor:pointer;">⏭</button>
+        </div>
+
+        <select id="track-select" style="flex:1;margin:0 8px;background:rgba(0,0,0,0.6);border:1px solid rgba(168,85,247,0.3);color:#e2e8f0;font-size:10px;padding:6px;border-radius:6px;outline:none;">
+          <option value="">Učitavanje...</option>
+        </select>
+
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px;">
+          <span>🔊</span>
+          <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7" style="width:50px;accent-color:#ec4899;cursor:pointer;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. G-MACROS PALETTE MODAL -->
+  <div class="glass-modal" id="modal-macros">
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🥷</span>
+        <span style="font-weight:800;font-size:12px;color:#c084fc;">CHIEF ARCHITECT G-MACROS</span>
+      </div>
+      <button id="btn-close-macros" style="background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="padding:14px;display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;">
+      <button class="macro-card-btn" data-macro="/G-GODMODE" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🚀 /G-GODMODE
+      </button>
+      <button class="macro-card-btn" data-macro="/G-AUDIT" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🔍 /G-AUDIT
+      </button>
+      <button class="macro-card-btn" data-macro="/G-HEX-EXEC 4b6f6e676c6f6d65726174" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🧬 /G-HEX-EXEC
+      </button>
+      <button class="macro-card-btn" data-macro="/G-MATH-MODEL" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        📐 /G-MATH-MODEL
+      </button>
+      <button class="macro-card-btn" data-macro="/G-GHOST" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        👻 /G-GHOST
+      </button>
+      <button class="macro-card-btn" data-macro="/G-AIGAD" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🐮 /G-AIGAD
+      </button>
+      <button class="macro-card-btn" data-macro="/G-AIBRAT" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🤖 /G-AIBRAT
+      </button>
+      <button class="macro-card-btn" data-macro="/G-YAPPINATOR" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        🌐 /G-YAPPINATOR
+      </button>
+      <button class="macro-card-btn" data-macro="/G-YSHELL (137 * 29) + 17" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);padding:8px;border-radius:8px;color:#d8b4fe;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        💻 /G-YSHELL Calc
+      </button>
+      <button class="macro-card-btn" data-macro="/G-CANNON Razradi ultra mega inzenjerski tok" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);padding:8px;border-radius:8px;color:#fbbf24;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">
+        ⚡ /G-CANNON
+      </button>
+    </div>
+  </div>
+
+  <!-- 8. CHARACTER & VISUAL MODE SWITCHER MODAL -->
+  <div class="glass-modal" id="modal-character">
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🎭</span>
+        <span style="font-weight:800;font-size:12px;color:#c084fc;">IZBOR 3D LIKA & REŽIMA</span>
+      </div>
+      <button id="btn-close-character" style="background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+      <button class="char-select-btn" data-char="aigad" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;color:#ffffff;cursor:pointer;text-align:left;">
+        <span style="font-size:20px;">🟣</span>
+        <div>
+          <div style="font-weight:800;font-size:12px;color:#d8b4fe;">AiGad 3D (Default)</div>
+          <div style="font-size:10px;color:#94a3b8;">Rigged GLB + Articulated Skull & Purple Hood</div>
+        </div>
+      </button>
+
+      <button class="char-select-btn" data-char="chatbrat" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;color:#ffffff;cursor:pointer;text-align:left;">
+        <span style="font-size:20px;">🔴</span>
+        <div>
+          <div style="font-weight:800;font-size:12px;color:#fca5a5;">ChatBrat 3D</div>
+          <div style="font-size:10px;color:#94a3b8;">Rigged GLB + Red Hoodie & Matrix Shades</div>
+        </div>
+      </button>
+
+      <button class="char-select-btn" data-char="leteci" style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;color:#ffffff;cursor:pointer;text-align:left;">
+        <span style="font-size:20px;">🛸</span>
+        <div>
+          <div style="font-weight:800;font-size:12px;color:#f472b6;">Leteći Rođa Noir</div>
+          <div style="font-size:10px;color:#94a3b8;">Cinematic Noir Artwork + Jet Flame Rig</div>
+        </div>
+      </button>
+
+      <button class="char-select-btn" data-char="airodja" style="background:rgba(6,182,212,0.15);border:1px solid rgba(6,182,212,0.3);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px;color:#ffffff;cursor:pointer;text-align:left;">
+        <span style="font-size:20px;">💠</span>
+        <div>
+          <div style="font-weight:800;font-size:12px;color:#67e8f9;">AiRodja Holo</div>
+          <div style="font-size:10px;color:#94a3b8;">Holographic Icosahedron Core & Quantum Lattice</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- 9. ANDROID PHONE USB BRIDGE MODAL -->
+  <div class="glass-modal" id="modal-android" style="top:50%;left:50%;transform:translate(-50%,-50%) scale(0.95);width:420px;">
+    <div style="padding:14px 18px;border-bottom:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:18px;">📱</span>
+        <span style="font-weight:800;font-size:13px;color:#34d399;">USB ANDROID PHONE BRIDGE</span>
+      </div>
+      <button id="btn-close-android" style="background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="padding:16px;display:flex;flex-direction:column;gap:12px;font-size:11px;color:#cbd5e1;line-height:1.6;">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);">
+        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+        <span style="font-weight:700;color:#6ee7b7;">ADB Device: FESCGYSKEEJ7Z9IV (Connected)</span>
+      </div>
+
+      <p>
+        Tvoj fizički telefon je povezan preko USB-a sa aktivnim ADB reverse forwarding-om:
+      </p>
+      
+      <div style="background:rgba(0,0,0,0.5);border:1px solid rgba(168,85,247,0.2);border-radius:8px;padding:10px;font-family:monospace;">
+        <div>• <b>Port 15200</b>: Leteći Rođa WebGL 3D Companion</div>
+        <div>• <b>Port 18503</b>: Rođa Native Cockpit Server</div>
+        <div>• <b>Port 18501</b>: AIChatBrat / YappinaTor Server</div>
+      </div>
+
+      <p style="color:#a7f3d0;">
+        Otvari Chrome ili pretraživač na povezanom telefonu i poseti:<br>
+        <code style="background:rgba(0,0,0,0.6);padding:3px 6px;border-radius:4px;color:#34d399;">http://localhost:15200</code><br>
+        3D lik lebdi i pokreće se prevlačenjem prstom direktno na ekranu telefona!
+      </p>
+    </div>
+  </div>
+
+  <!-- 10. BOTTOM TELEMETRY BAR -->
+  <footer class="bottom-telemetry">
+    <div>
+      HOARE MATRIX: <span style="color:#c084fc;">{P} C {Q} VERIFIED</span> | ENTROPY: <span style="color:#34d399;">H(X) OPTIMAL</span>
+    </div>
+    <div>
+      KONGLEOMERAT PREDUZEĆE™ &copy; 2026 // ZERO-LEAKAGE PRODUCTION ARCHITECTURE
+    </div>
+  </footer>
+
+  <!-- 11. FLOATING ZEN RESTORE BUTTON (VISIBLE ONLY IN ZEN MODE) -->
+  <button id="btn-zen-restore" class="zen-restore-btn">
+    <span>👁️</span>
+    <span>VRATI KOKPIT</span>
+  </button>
+
+  <!-- 12. AUDIO ENGINE -->
   <audio id="audio-engine" preload="auto" crossorigin="anonymous"></audio>
 
-  <!-- APPLICATION SCRIPTS -->
+  <!-- 13. SCRIPT INGESTION -->
   <script src="js/smoke.js"></script>
-  <script src="js/avatar3d.js"></script>
   <script src="js/audio-player.js"></script>
   <script src="js/mindset.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 
 </body>
 </html>
