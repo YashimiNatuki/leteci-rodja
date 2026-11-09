@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="sr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080810"><title>Mini PETS HQ — Character Motion Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#080910;--panel:#121522;--stroke:#39304f;--violet:#bd9aff;--mint:#94f3db;--text:#f3eeff;--muted:#a49bb9}*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;color:var(--text);font:13px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg)}
+#app{position:relative;height:100dvh;min-height:210px;width:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#291c3f 0,#111322 44%,#07090f 78%)}
+#canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}#canvas:active{cursor:grabbing}#canvas canvas{width:100%!important;height:100%!important;display:block}
+#top{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;align-items:start;gap:9px;pointer-events:none}
+#top b{font-size:13px;letter-spacing:1px}#top small{display:block;font-size:10px;color:#a9a3b9;max-width:290px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--mint);border-radius:30px;border:1px solid #485775;background:#1b2339bb;padding:6px 9px;white-space:nowrap}
+#controls{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;pointer-events:auto}
+button,select{border:1px solid #665682;background:#161b2df0;color:var(--text);font:600 11px system-ui;border-radius:10px;padding:9px 11px;cursor:pointer;min-height:35px}
+button:hover,select:hover{background:#302848;border-color:var(--violet)}button:focus-visible,select:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+button[aria-pressed=true]{background:#423064;border-color:#c4a5ff;color:white}
+#status{position:absolute;top:68px;left:12px;right:12px;max-width:320px;color:#adf5df;font-size:11px;line-height:1.4;pointer-events:none;text-shadow:0 2px 6px #000}
+#details{position:absolute;bottom:60px;left:12px;color:#9f99bb;font-size:10px;line-height:1.6;pointer-events:none;max-width:225px}
+#load{position:absolute;inset:0;z-index:5;display:flex;justify-content:center;align-items:center;text-align:center;background:#0b0e1fea;padding:30px}
+#load[hidden]{display:none}#load strong{display:block;font-size:14px}#load span{font-size:11px;color:#a9adc5}
+.zen #top,.zen #details,.zen #status{display:none}.zen #controls{opacity:.24;transition:opacity .2s}.zen #controls:hover{opacity:1}
+@media(max-width:550px){#top{top:9px;left:9px;right:9px}#top b{font-size:11px}#top small{font-size:9px;max-width:170px}.chip{font-size:9px;padding:5px 7px}#controls{bottom:7px;left:4px;right:4px;gap:4px}button,select{font-size:10px;padding:7px 8px;min-height:30px}#details{bottom:78px;max-width:180px;font-size:9px}#status{top:72px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script></head><body>
+<div id="app"><div id="canvas" aria-label="Interaktivna 3D scena sa rigovanim AI likom, tkaninom i gestovima"></div>
+<header id="top"><div><b>MINI PETS · MOTION LAB HQ</b><small>Originalni AiGad / ChatBrat · animacioni prototip, nije konačni Cruelty × Fatality lik</small></div><span class="chip" id="badge">◌ Učitavanje</span></header>
+<div id="status" role="status" aria-live="polite">Pripremam stvarni rigovani model…</div>
+<div id="details">Model: <span id="modelName">—</span><span id="stats"></span></div>
+<div id="controls">
+<select id="character" aria-label="Lik"><option value="aigad">AiGad HQ</option><option value="chatbrat">ChatBrat referenca</option></select>
+<button data-action="wave">👋 Pozdrav</button><button data-action="listen">◉ Slušaj</button><button data-action="thinking">✧ Misli</button><button data-action="speaking">◈ Govori · demo</button><button data-action="success">✦ Uspeh</button><button data-action="idle">↺ Mir</button><button id="clothToggle" type="button" aria-pressed="false" title="Experimental fabric, not final cloth">Plašt · beta</button><button id="zen">◇ Zen</button></div>
+<div id="load"><div><strong>MINI PETS · MOTION LAB</strong><span id="loadText">Učitavam originalnu 3D geometriju i rig. Bez lažnog prikaza.</span></div></div></div>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const $=id=>document.getElementById(id), siteOrigin='https://project32576.websitepublisher.ai';
+const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const saveData=!!navigator.connection?.saveData;
+const mobile=innerWidth<700;
+const maxDpr=mobile||saveData?0.9:1.25;
+const label={idle:'Lebdim. Spreman sam.',wave:'Pozdrav! Gest je aktivan.',listen:'Slušam tvoj zahtev.',thinking:'Obrađujem zahtev…',speaking:'Animaciona demonstracija govora (bez AI odgovora).',answer:'Odgovor je primljen — stanje potvrde.',success:'Zadatak završen.',error:'Operacija nije uspela.'};
+const allowed=new Set(Object.keys(label));
+const assets={aigad:'https://raw.githubusercontent.com/YashimiNatuki/leteci-rodja/master/public/assets/characters/aigad-rigged.glb',chatbrat:'https://raw.githubusercontent.com/YashimiNatuki/leteci-rodja/master/public/assets/characters/chatbrat-rigged.glb'};
+let scene,camera,renderer,clock,heroRoot,model=null,modelBones=[],cloth=null,modelId='aigad',mode='idle',modeSince=0,ready=false,raf=0,drawn=0,lastFrame=0,lastFpsAt=0,frames=0,fps=0,pointer={drag:false,moved:false,x:0,y:0,startX:0,startY:0},angles={yaw:0,pitch:0},motion={y:0,vy:0,target:0},loadSerial=0;
+function tell(type,info={}){try{parent.postMessage({type,...info},siteOrigin)}catch{}}
+function textStatus(s){$('status').textContent=s}
+function setMode(next,origin='manual'){
+ if(!allowed.has(next))return false;
+ mode=next;modeSince=clock.getElapsedTime();
+ textStatus(label[next]+(origin==='manual'&&['speaking','thinking'].includes(next)?' · lokalni demo':''));
+ document.querySelectorAll('[data-action]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.action===next)));
+ tell('mini-pets:ninja-state',{state:next,source:origin});
+ return true;
+}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{if(ready)setMode(b.dataset.action,'manual')}));
+$('zen').onclick=()=>{$('app').classList.toggle('zen');$('zen').setAttribute('aria-pressed',String($('app').classList.contains('zen')))};
+$('clothToggle').onclick=()=>{if(!cloth)return;cloth.mesh.visible=!cloth.mesh.visible;$('clothToggle').setAttribute('aria-pressed',String(cloth.mesh.visible));textStatus(cloth.mesh.visible?'Eksperimentalni plašt aktiviran (nije finalna tkanina).':'Plašt sakriven. Model ostaje čist.');};
+$('character').onchange=e=>loadAvatar(e.target.value);
+addEventListener('message',e=>{
+ if(e.origin!==siteOrigin||e.source!==parent)return;
+ if(e.data?.type!=='mini-pets:ninja-action')return;
+ let requested=e.data.action;
+ if(requested==='answer')requested='answer';
+ if(requested==='spin')requested='success';
+ if(requested==='wave')requested='wave';
+ if(ready)setMode(requested,'website');
+});
+function makeCloth(){
+ // A soft simulated cape, not a rigid scarf. 11×15 verlet grid, two pinned shoulder corners.
+ const nx=11,ny=15,verts=nx*ny;const pos=new Float32Array(verts*3),prev=new Float32Array(verts*3),pins=[];
+ const index=(x,y)=>y*nx+x;
+ const initial=(x,y)=>{const u=x/(nx-1),v=y/(ny-1),width=.4+.4*v,scallop=Math.sin(Math.PI*u)*.10*v*v,fold=Math.sin(u*11+v*3.3)*.07*(.15+.85*v);return [(u-.5)*width,.43-v*.79-scallop+.028*v*Math.cos(u*Math.PI*2),-.23-v*.17+fold]};
+ for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const p=initial(x,y),i=index(x,y)*3;pos.set(p,i);prev.set(p,i);if(y===0)pins.push(index(x,y))}
+ const polys=[];for(let y=0;y<ny-1;y++)for(let x=0;x<nx-1;x++){const a=index(x,y),b=index(x+1,y),c=index(x,y+1),d=index(x+1,y+1);polys.push(a,c,b,b,c,d)}
+ const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(pos,3));const colors=new Float32Array(verts*3);for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const u=x/(nx-1),v=y/(ny-1),fold=Math.sin(u*10+v*4),edge=Math.abs(2*u-1),k=(y*nx+x)*3;colors[k]=.31+.19*edge+.05*fold;colors[k+1]=.15+.085*fold;colors[k+2]=.40+.17*edge+.06*fold;}geom.setAttribute('color',new THREE.BufferAttribute(colors,3));geom.setIndex(polys);geom.computeVertexNormals();
+ const mat=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,side:THREE.DoubleSide,roughness:.98,metalness:0,transparent:false});
+ const mesh=new THREE.Mesh(geom,mat);mesh.name='simulated-cloth';mesh.visible=false;heroRoot.add(mesh);
+ const links=[];for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){if(x+1<nx)links.push([index(x,y),index(x+1,y)]);if(y+1<ny)links.push([index(x,y),index(x,y+1)]);if(x+1<nx&&y+1<ny)links.push([index(x,y),index(x+1,y+1)]);if(x>0&&y+1<ny)links.push([index(x,y),index(x-1,y+1)])}
+ const rest=links.map(([a,b])=>Math.hypot(pos[a*3]-pos[b*3],pos[a*3+1]-pos[b*3+1],pos[a*3+2]-pos[b*3+2]));
+ const pinned=new Set(pins);
+ return{mesh,pos,prev,pinned,links,rest,initial,index,nx,ny,last:0};
+}
+function updateCloth(t,dt){
+ if(!cloth||reduced||!cloth.mesh.visible)return;
+ const {mesh,pos,prev,links,rest,pinned,initial,nx,ny}=cloth;
+ const sub=Math.min(2,Math.max(1,Math.round(dt*60))),dt2=Math.min(.03,dt/sub)**2;
+ for(let step=0;step<sub;step++){
+  for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){
+   const k=y*nx+x,j=k*3;
+   if(pinned.has(k)){const a=initial(x,y);pos.set(a,j);prev.set(a,j);continue}
+   const ix=pos[j],iy=pos[j+1],iz=pos[j+2];
+   const dx=(ix-prev[j])*.952,dy=(iy-prev[j+1])*.952,dz=(iz-prev[j+2])*.952;
+   const wind=Math.sin(t*1.8+y*.43+x*.32)*.8+Math.sin(t*.7+y*.2)*.45;
+   pos[j]=ix+dx+wind*dt2*.85;
+   pos[j+1]=iy+dy-2.2*dt2;
+   pos[j+2]=iz+dz+Math.cos(t*1.6+y*.3)*dt2*.25;
+   prev[j]=ix;prev[j+1]=iy;prev[j+2]=iz;
+  }
+  for(let iter=0;iter<5;iter++){
+   for(let k=0;k<links.length;k++){
+    const [a,b]=links[k],ja=a*3,jb=b*3;
+    const dx=pos[jb]-pos[ja],dy=pos[jb+1]-pos[ja+1],dz=pos[jb+2]-pos[ja+2],len=Math.hypot(dx,dy,dz)||.00001;
+    const w=(len-rest[k])/len*.49;
+    if(!pinned.has(a)){pos[ja]+=dx*w;pos[ja+1]+=dy*w;pos[ja+2]+=dz*w}
+    if(!pinned.has(b)){pos[jb]-=dx*w;pos[jb+1]-=dy*w;pos[jb+2]-=dz*w}
+   }
+   for(let x=0;x<nx;x++){const a=initial(x,0);pos.set(a,x*3)}
+  }
+ }
+ mesh.geometry.attributes.position.needsUpdate=true;
+ if(t-cloth.last>.18){mesh.geometry.computeVertexNormals();cloth.last=t}
+}
+function cleanupModel(){
+ if(cloth){cloth.mesh.geometry.dispose();cloth.mesh.material.dispose();heroRoot.remove(cloth.mesh);cloth=null}
+ if(model){heroRoot.remove(model);model.traverse(o=>{if(o.isMesh){o.geometry?.dispose();for(const mat of Array.isArray(o.material)?o.material:[o.material])mat?.dispose?.()}});model=null}
+ modelBones=[];ready=false;
+}
+function setupModel(gltf,id){
+ cleanupModel();model=gltf.scene;modelId=id;modelBones=[];
+ model.traverse(o=>{if(o.isBone||o.type==='Bone'){modelBones.push({bone:o,q:o.quaternion.clone(),name:o.name.toLowerCase()})}if(o.isMesh){o.castShadow=false;o.frustumCulled=false}});
+ const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
+ if(!Number.isFinite(size.y)||size.y<.1)throw Error('Invalid GLB bounds');
+ const center=box.getCenter(new THREE.Vector3());
+ model.position.sub(center);model.scale.setScalar(1.42/size.y);
+ heroRoot.add(model);
+ cloth=makeCloth();$('clothToggle').setAttribute('aria-pressed','false');
+ $('modelName').textContent=(id==='aigad'?'AiGad · referentni glTF':'ChatBrat · referentni glTF');
+ $('badge').textContent='● 3D spreman';$('load').hidden=true;ready=true;setMode('idle','runtime');
+ tell('mini-pets:ninja-ready',{rigBones:modelBones.length,model:id,cloth:'verlet-grid',mode:'reference-lab'});
+}
+function loadAvatar(id){
+ const serial=++loadSerial;ready=false;
+ $('load').hidden=false;$('loadText').textContent='Učitavam originalni '+(id==='aigad'?'AiGad':'ChatBrat')+' GLB model…';
+ new GLTFLoader().load(assets[id],g=>{
+  if(serial!==loadSerial)return;
+  try{setupModel(g,id)}catch(e){fail(e)}
+ },undefined,e=>{if(serial===loadSerial)fail(e)});
+}
+function fail(e){console.error('MINI PETS load failed',e);$('load').hidden=false;$('loadText').textContent='Model nije dostupan. Proveri mrežu / WebGL.';$('badge').textContent='● GLB nije dostupan';textStatus('Učitavanje modela nije uspelo.');tell('mini-pets:ninja-error')}
+function setup3D(){
+ scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(33,1,.05,40);
+ camera.position.set(0,.14,3.45);renderer=new THREE.WebGLRenderer({alpha:true,antialias:!mobile,powerPreference:saveData?'low-power':'high-performance'});
+ renderer.setPixelRatio(maxDpr);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;$('canvas').appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xd9d5ff,0x231628,2.5));
+ const key=new THREE.DirectionalLight(0xf9ebdf,3.2);key.position.set(-2.3,3.2,4);scene.add(key);
+ const rim=new THREE.DirectionalLight(0xb789ff,2.7);rim.position.set(2.2,2.7,-2);scene.add(rim);
+ const fill=new THREE.PointLight(0x6ddfcc,2.8,8);fill.position.set(-1,-.4,1.5);scene.add(fill);
+ heroRoot=new THREE.Group();scene.add(heroRoot);
+ const halo=new THREE.Mesh(new THREE.TorusGeometry(.76,.006,8,108),new THREE.MeshBasicMaterial({color:0x8e60d4,transparent:true,opacity:.33}));
+ halo.rotation.x=1.2;halo.position.set(0,-.94,-.3);scene.add(halo);
+ const inner=new THREE.Mesh(new THREE.RingGeometry(.34,.48,48),new THREE.MeshBasicMaterial({color:0x7f59d1,side:THREE.DoubleSide,transparent:true,opacity:.15}));
+ inner.rotation.x=-Math.PI/2;inner.position.y=-1.02;scene.add(inner);
+ function resize(){const rect=$('canvas').getBoundingClientRect();const w=Math.max(100,Math.round(rect.width)),h=Math.max(100,Math.round(rect.height));const budget=mobile?330000:850000,scale=Math.min(maxDpr,Math.sqrt(budget/(w*h)));renderer.setPixelRatio(Math.max(.65,scale));renderer.setSize(w,h,false);camera.aspect=w/h;camera.position.z=w<700?4.25:4.0;camera.position.y=.22;camera.lookAt(0,.04,0);camera.updateProjectionMatrix()}
+ new ResizeObserver(resize).observe($('canvas'));resize();
+ const surface=$('canvas');
+ surface.addEventListener('pointerdown',e=>{pointer.drag=true;pointer.moved=false;pointer.startX=e.clientX;pointer.startY=e.clientY;surface.setPointerCapture?.(e.pointerId)});
+ surface.addEventListener('pointermove',e=>{if(pointer.drag){const dx=e.clientX-pointer.startX,dy=e.clientY-pointer.startY;if(Math.abs(dx)+Math.abs(dy)>7)pointer.moved=true;angles.yaw=THREE.MathUtils.clamp(dx/90,-1.4,1.4);angles.pitch=THREE.MathUtils.clamp(dy/220,-.32,.32)}else if(e.pointerType==='mouse'){const r=surface.getBoundingClientRect();angles.yaw=((e.clientX-r.left)/r.width-.5)*.3}});
+ surface.addEventListener('pointerup',()=>{if(!pointer.moved&&ready)setMode('wave','manual');pointer.drag=false});surface.addEventListener('pointercancel',()=>pointer.drag=false);
+ clock=new THREE.Clock();loadAvatar('aigad');
+ function tick(stamp){raf=requestAnimationFrame(tick);if(document.hidden)return;const dt=Math.min(.04,(stamp-lastFrame)/1000||.016);if(stamp-drawn<(mobile||saveData?33:18))return;drawn=stamp;lastFrame=stamp;const t=clock.getElapsedTime();frames++;
+  if(stamp-lastFpsAt>1700){fps=Math.round(frames*1000/(stamp-lastFpsAt));frames=0;lastFpsAt=stamp;if(fps<18&&fps>0&&renderer.getPixelRatio()>.72){renderer.setPixelRatio(Math.max(.72,renderer.getPixelRatio()-.12));}$('stats').textContent=' · '+modelBones.length+' kostiju · ~'+fps+' fps · plašt: '+(cloth?.mesh.visible?'beta ON':'isključen')+' · '+(mobile?'mobilni profil':'HQ profil')}
+  if(ready){let activity=mode==='speaking'?.1:mode==='thinking'?.038:mode==='listen'?.012:0;
+    const target=(reduced?0:Math.sin(t*1.6)*.027+Math.sin(t*2.37+.7)*.016)+activity;
+    const k=dt*dt*19,motionDamping=Math.exp(-dt*6);
+    motion.vy=(motion.vy+(target-motion.y)*k)*motionDamping;
+    motion.y+=motion.vy;
+    heroRoot.position.y=.17+motion.y;
+    heroRoot.rotation.y=THREE.MathUtils.lerp(heroRoot.rotation.y,angles.yaw,Math.min(1,dt*5.2));
+    heroRoot.rotation.x=THREE.MathUtils.lerp(heroRoot.rotation.x,angles.pitch,Math.min(1,dt*5.2));
+    heroRoot.rotation.z=reduced?0:Math.sin(t*.5)*.014+heroRoot.rotation.y*.032;
+    const phase=t-modeSince;
+    for(const entry of modelBones){
+       const {bone,q,name}=entry;
+       if(!/head$|spine2$|rightarm$|leftarm$|rightforearm$|leftforearm$/.test(name))continue;
+       const targetQ=q.clone();let ez=0,ex=0;
+       if(name.endsWith('rightarm'))ez=mode==='wave'&&phase<2.1?-.46-Math.sin(t*11)*.26:mode==='speaking'?.12:mode==='listen'?.11:reduced?0:Math.sin(t*.9)*.026;
+       if(name.endsWith('leftarm'))ez=mode==='success'?.26:mode==='speaking'?.1:reduced?0:-Math.sin(t*.87)*.024;
+       if(name.endsWith('spine2'))ex=mode==='listen'?-.075:mode==='thinking'?.05:reduced?0:Math.sin(t*1.5)*.014;
+       if(name.endsWith('head')){ex=mode==='listen'?-.08:mode==='thinking'?.11:(reduced?0:Math.sin(t*.76)*.025)}
+       targetQ.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(ex,0,ez)));
+       bone.quaternion.slerp(targetQ,Math.min(1,dt*6.5));
+    }
+    updateCloth(t,dt);
+    if(['wave','success','answer','error'].includes(mode)&&phase>2.2)setMode('idle','runtime');
+  }
+  renderer.render(scene,camera);
+ }
+ lastFpsAt=performance.now();tick(lastFpsAt);
+}
+try{setup3D()}catch(e){fail(e)}
+</script></body></html>
